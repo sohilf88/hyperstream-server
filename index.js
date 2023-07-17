@@ -5,6 +5,10 @@ const mongoose = require("mongoose");
 const morgan = require("morgan");
 const app = express();
 
+app.use("/user", require("./routes/user.route"));
+
+app.use("/auth", require("./routes/auth.route")); //auth/profile,auth/login,auth/logout routes
+
 app.get("/", function (req, res, next) {
   res.send("home route");
 });
@@ -24,7 +28,7 @@ app.use((error, req, res, next) => {
 // initialize .env variables
 const port = process.env.PORT || 5000; //port on server is listening
 
-// connecting database
+// connecting database and then only listening on server on port 5000
 mongoose
   .connect(process.env.DB_URL, {
     dbName: process.env.DB_NAME,
@@ -33,9 +37,9 @@ mongoose
   })
   .then(() => {
     console.log("connected database");
+    //listening server function
     app.listen(port, function () {
       console.log(`listening on port ${port}`);
     });
   })
   .catch((error) => console.log(error.message));
-//listening server function

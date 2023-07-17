@@ -17,9 +17,9 @@ router.get("/forgot-password", async (req, res, next) => {
 router.post("/login", async (req, res, next) => {
   res.send("login");
 });
-router.post("/logout", async (req, res, next) => {
-  res.send("logout");
-});
+// router.post("/logout", async (req, res, next) => {
+//   res.send("logout");
+// });
 router.post("/forgot-password", async (req, res, next) => {
   res.send("forgot password");
 });

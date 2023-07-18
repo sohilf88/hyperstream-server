@@ -3,7 +3,9 @@ const router = require("express").Router();
 // GET Routes
 
 router.get("/login", async (req, res, next) => {
-  res.send("login");
+  res.json({
+    result: "login",
+  });
 });
 router.get("/logout", async (req, res, next) => {
   res.send("logout");
@@ -23,7 +25,5 @@ router.post("/login", async (req, res, next) => {
 router.post("/forgot-password", async (req, res, next) => {
   res.send("forgot password");
 });
-
-
 
 module.exports = router;

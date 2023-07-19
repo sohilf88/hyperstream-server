@@ -9,12 +9,20 @@ const app = express();
 
 // middlewares
 app.use(express.json());
+app.use(
+  express.urlencoded({
+    extended: false,
+  })
+);
 app.use(morgan("dev")); // used to see logs on console
 // handle error with below codee
 
-app.use("/api/v1/users", require("./routes/users.route")); // /api/v1/users
+// !routes to handle all users related requests
+app.use("/api/v1/users", require("./routes/users.route"));
 
+// !routes to handle login,logout,register related requests
 app.use("/api/v1/auth", require("./routes/auth.route")); ///api/v1/auth/profile,/api/v1/auth/login,auth/logout routes
+// !routes to handle all camera/data add/remove/update requests
 app.use("/api/v1/camera", require("./routes/camera.route"));
 
 app.use((req, res, next) => {

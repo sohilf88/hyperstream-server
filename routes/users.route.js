@@ -1,31 +1,25 @@
 const router = require("express").Router();
+const {
+  createUserController,
+  getAllUsersController,
+  getSingleUserController,
+  deleteUserController,
+  updateUserController,
+} = require("../controllers/user.controller");
 
 // get all users
-router.get("/", async (req, res, next) => {
-  res.json({ result: "all users" });
-});
+router.get("/", getAllUsersController);
 
-// get specific user
-router.get("/:id", async (req, res, next) => {
-  // const { id } = req.params;
-  res.json({ result: "get specific user" });
-});
+// get single user
+router.get("/:id", getSingleUserController);
 
-// create specific user
-router.post("/:id", async (req, res, next) => {
-  const { id } = req.params;
-  res.json({ result: " add specific user"  });
-});
+// create user
+router.post("/", createUserController);
+
 // update specific user
-router.patch("/:id", async (req, res, next) => {
-  const { id } = req.params;
-  res.json({ result: " update specific user" });
-});
+router.patch("/:id", updateUserController);
 
 // delete single user
-router.delete("/:id", async (req, res, next) => {
-  const { id } = req.params;
-  res.json({ result: "delete specific user" });
-});
+router.delete("/:id", deleteUserController);
 
 module.exports = router;

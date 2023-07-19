@@ -5,7 +5,6 @@ const cameraSchema = new mongoose.Schema(
     url: {
       type: String,
       required: true,
-      unique: true,
     },
     name: {
       type: String,
@@ -26,6 +25,6 @@ const cameraSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
+// below create collection in database with name "cameras"
 const cameraSchemaModel = mongoose.model("camera", cameraSchema);
 module.exports = cameraSchemaModel;

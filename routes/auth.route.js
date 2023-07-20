@@ -1,29 +1,12 @@
 const router = require("express").Router();
+const {
+  signupController,
+  loginController,
+} = require("../controllers/auth.controller");
 
-// GET Routes
-
-router.get("/login", async (req, res, next) => {
-  res.json({
-    result: "login",
-  });
-});
-router.get("/logout", async (req, res, next) => {
-  res.send("logout");
-});
-router.get("/forgot-password", async (req, res, next) => {
-  res.send("forgot password");
-});
-
-// POST route
-
-router.post("/login", async (req, res, next) => {
-  res.send("login");
-});
-// router.post("/logout", async (req, res, next) => {
-//   res.send("logout");
-// });
-router.post("/forgot-password", async (req, res, next) => {
-  res.send("forgot password");
-});
+// login Route
+router.post("/login", loginController);
+// signup route
+router.post("/signup", signupController);
 
 module.exports = router;

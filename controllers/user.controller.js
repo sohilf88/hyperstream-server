@@ -4,25 +4,26 @@ const mongoose = require("mongoose");
 // get all users function
 async function getAllUsersController(req, res, next) {
   try {
-    const allUsers = await usermodel.find().limit(20);
+    const allUsers = await usermodel.find({}).limit(20).sort({ createAt: -1 });
     res.status(200).json(allUsers);
   } catch (error) {
     res.status(400).json(error.message);
   }
 }
 
-// create user function
+// register user function
 async function createUserController(req, res, next) {
   const { email, password } = req.body;
   try {
-    const user = await usermodel.create({ email, password });
-    res.status(200).json(user);
+    const user = await usermodel.signup(email, password);
+    // const user = await usermodel.create({ email, password });
+    res.status(200).json({ email, user });
   } catch (error) {
-    res.status(400).json(error.message);
+    res.status(400).json({ error: error.message });
   }
 }
 
-// get single user detail
+// get single user detail for login
 
 async function getSingleUserController(req, res, next) {
   const { id } = req.params;

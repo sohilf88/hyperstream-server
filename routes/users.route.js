@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const {
-  createUserController,
+  
   getAllUsersController,
   getSingleUserController,
   deleteUserController,
@@ -13,8 +13,7 @@ router.get("/", getAllUsersController);
 // get single user
 router.get("/:id", getSingleUserController);
 
-// create user
-router.post("/", createUserController);
+
 
 // update specific user
 router.patch("/:id", updateUserController);

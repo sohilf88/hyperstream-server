@@ -11,17 +11,6 @@ async function getAllUsersController(req, res, next) {
   }
 }
 
-// register user function
-async function createUserController(req, res, next) {
-  const { email, password } = req.body;
-  try {
-    const user = await usermodel.signup(email, password);
-    // const user = await usermodel.create({ email, password });
-    res.status(200).json({ email, user });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-}
 
 // get single user detail for login
 
@@ -37,7 +26,7 @@ async function getSingleUserController(req, res, next) {
     if (!user) {
       return res.status(404).json({ error: "No Such user found" });
     }
-    res.status(200).json(user);
+    res.status(200).json({email:user.email,_id:user._id});
   } catch (error) {
     res.status(400).json(error.message);
   }
@@ -94,7 +83,7 @@ async function deleteUserController(req, res, next) {
 }
 
 module.exports = {
-  createUserController,
+  
   getAllUsersController,
   getSingleUserController,
   deleteUserController,

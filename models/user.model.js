@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
+// static method for signup function
 userSchema.statics.signup = async function (email, password) {
   // validate the email and password feild with below
   if (!email || !password) {
@@ -46,6 +46,35 @@ userSchema.statics.signup = async function (email, password) {
   // create document with email and has password
   const User = await this.create({ email: email, password: hashPassword });
   return User;
+};
+
+// static method for login user
+
+userSchema.statics.login = async function (email, password) {
+  // check for both feilds
+  if (!email || !password) {
+    throw Error("All feilds required");
+  }
+  // check email is valid id or not
+  if (!validator.isEmail(email)) {
+    throw Error("invalid email address");
+  }
+  // check email id present in database
+  // todo! need to change later error message for invalid user and password
+
+  const checkUserAccountInDB = await this.findOne({ email });
+  if (!checkUserAccountInDB) {
+    throw Error("Invalid User Account or No account Found");
+  }
+  // compare user sent password with databse password
+  const comparePassword = await bcrypt.compare(
+    password,
+    checkUserAccountInDB.password
+  );
+  if (!comparePassword) {
+    throw Error("Invalid password");
+  }
+  return checkUserAccountInDB;
 };
 
 module.exports = mongoose.model("user", userSchema);

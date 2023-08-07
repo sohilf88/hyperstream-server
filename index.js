@@ -2,18 +2,20 @@ require("dotenv").config();
 const express = require("express");
 const createHttpError = require("http-errors");
 const cameraRoute = require("./routes/camera.route");
-
+const cors = require("cors");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
 const app = express();
 
 // middlewares
+app.use(cors());
 app.use(express.json());
 app.use(
   express.urlencoded({
     extended: false,
   })
 );
+
 app.use(morgan("dev")); // used to see logs on console
 // handle error with below codee
 

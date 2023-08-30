@@ -14,6 +14,12 @@ const cameraSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    district: {
+      type: String,
+    },
+    taluka: {
+      type: String,
+    },
     city: {
       type: String,
     },

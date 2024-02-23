@@ -1,10 +1,22 @@
 const usermodel = require("../models/user.model");
 const mongoose = require("mongoose");
 
+async function createUser(req, res, next) {
+  try {
+    const user = await usermodel.create(req.body)
+    res.status(200).json({ email: user.email, _id: user._id });
+
+  } catch (error) {
+    res.status(400).json(error.message);
+
+  }
+
+}
 // get all users function
 async function getAllUsersController(req, res, next) {
   try {
-    const allUsers = await usermodel.find({}).limit(20).sort({ createAt: -1 });
+
+    const allUsers = await usermodel.find(req.query).limit(20).sort({ createAt: -1 });
     res.status(200).json(allUsers);
   } catch (error) {
     res.status(400).json(error.message);
@@ -26,7 +38,7 @@ async function getSingleUserController(req, res, next) {
     if (!user) {
       return res.status(404).json({ error: "No Such user found" });
     }
-    res.status(200).json({email:user.email,_id:user._id});
+    res.status(200).json({ email: user.email, _id: user._id });
   } catch (error) {
     res.status(400).json(error.message);
   }
@@ -83,9 +95,10 @@ async function deleteUserController(req, res, next) {
 }
 
 module.exports = {
-  
+
   getAllUsersController,
   getSingleUserController,
   deleteUserController,
   updateUserController,
+  createUser,
 };

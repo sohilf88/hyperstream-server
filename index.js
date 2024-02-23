@@ -6,9 +6,11 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
 const app = express();
+const bodyParser = require('body-parser');
 
 // middlewares
 app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
   express.urlencoded({

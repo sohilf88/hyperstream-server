@@ -9,22 +9,25 @@ const cameraSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
+      lowercase: true,
+
     },
-    pincode: {
-      type: Number,
-      required: true,
-    },
+
     district: {
       type: String,
+      lowercase: true,
     },
     taluka: {
       type: String,
+      lowercase: true,
     },
     city: {
       type: String,
+      lowercase: true,
     },
     area: {
       type: String,
+      lowercase: true,
     },
   },
   {

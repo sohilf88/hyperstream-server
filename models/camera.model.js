@@ -24,6 +24,7 @@ const cameraSchema = new mongoose.Schema(
     city: {
       type: String,
       lowercase: true,
+      
     },
     area: {
       type: String,

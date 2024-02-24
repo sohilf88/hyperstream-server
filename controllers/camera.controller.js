@@ -30,11 +30,32 @@ async function getFilteredCameraController(req, res, next) {
       delete queryObj[item]
     ))
 
-      // advance filtering for lte|lt|gte|gt
-      let queryString=JSON.stringify(queryObj)  // converted into string from object to perform replace
-      queryString=queryString.replace(/\b(gte|gt|lte|lt)\b/g,(match)=>`$${match}`)
-      
-    const query = cameraSchemaModel.find(JSON.parse(queryString))
+    // advance filtering for lte|lt|gte|gt
+    let queryString = JSON.stringify(queryObj)  // converted into string from object to perform replace
+    queryString = queryString.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`)
+
+
+    let query = cameraSchemaModel.find(JSON.parse(queryString))
+
+    // SORTING
+
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(",").join(" ")  //removed "," with " " space as mangoose don't need ,
+      // console.log(sortBy)
+      query = query.sort(sortBy)
+    } else {
+      query = query.sort("createdAt") // default query parameter if user does not provide anything in sort
+    }
+    // limiting the fields
+
+    if (req.query.fields) {
+      let fields = req.query.fields.split(",").join(" ")  //removed "," with " " space as mangoose don't need ,
+      query = query.select(fields)
+    } else {
+      query = query.select("-__v")  // -fields is used to exclude from response
+    }
+    // pagination 
+
     // send respond for Quried Data
     const filteredCameras = await query;
     res.status(200).json({
@@ -50,7 +71,7 @@ async function createCameraController(req, res, next) {
   try {
     const camera = await cameraSchemaModel.create(req.body);
 
-    res.status(200).json({ result: camera });
+    res.status(200).json({ total: camera.length, result: camera });
   } catch (error) {
     res.status(400).json(error.message);
   }

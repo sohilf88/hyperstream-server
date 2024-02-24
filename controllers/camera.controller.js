@@ -55,12 +55,24 @@ async function getFilteredCameraController(req, res, next) {
       query = query.select("-__v")  // -fields is used to exclude from response
     }
     // pagination 
+    //  skip is showing page number and limit show how many numbers of output per page
+    // page=1&limit=10 => page is 1 and size is 10  1-10, 11-20,21-30 and so on
+
+    const page = req.query.page * 1 || 1 // multiply by 1 to convert into number
+    const limitResult = req.query.limit * 1 || 8  // default size is 8
+    const skipPages = (page - 1) * limitResult
+    if (req.query.page) {
+      const pageCount = await cameraSchemaModel.countDocuments();
+      if (skipPages >= pageCount) throw new Error("this page does not exist")
+    }
+    query = query.skip(skipPages).limit(limitResult)
 
     // send respond for Quried Data
     const filteredCameras = await query;
     res.status(200).json({
       total: filteredCameras.length,
-      result: filteredCameras
+      result: filteredCameras,
+
     });
   } catch (error) {
     res.status(400).json(error.message);

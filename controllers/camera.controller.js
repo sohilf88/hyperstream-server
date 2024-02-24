@@ -16,6 +16,35 @@ async function getAllCameraController(req, res, next) {
   }
 }
 
+// get 6 cameras only
+
+async function getFilteredCameraController(req, res, next) {
+  try {
+
+    // Build Query having sorting, pagination, filter, skip , limit and other
+    let queryObj = { ...req.query }
+
+    const excludedFields = ["sort", "page", "limit", "fields"]
+    // exclude above fields from query object by use of forEach
+    excludedFields.forEach((item) => (
+      delete queryObj[item]
+    ))
+
+      // advance filtering for lte|lt|gte|gt
+      let queryString=JSON.stringify(queryObj)  // converted into string from object to perform replace
+      queryString=queryString.replace(/\b(gte|gt|lte|lt)\b/g,(match)=>`$${match}`)
+      
+    const query = cameraSchemaModel.find(JSON.parse(queryString))
+    // send respond for Quried Data
+    const filteredCameras = await query;
+    res.status(200).json({
+      total: filteredCameras.length,
+      result: filteredCameras
+    });
+  } catch (error) {
+    res.status(400).json(error.message);
+  }
+}
 // create Camera function
 async function createCameraController(req, res, next) {
   try {
@@ -119,4 +148,5 @@ module.exports = {
   deleteCameraController,
   getSingleCameraController,
   //   deleteAllCameraController,
+  getFilteredCameraController
 };

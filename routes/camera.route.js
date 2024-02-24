@@ -5,14 +5,17 @@ const {
   updateCameraController,
   deleteCameraController,
   getSingleCameraController,
+  getFilteredCameraController
   // deleteAllCameraController,
 } = require("../controllers/camera.controller");
 // get all cameras
 
 router.get("/", getAllCameraController);
 
+router.get("/filtered", getFilteredCameraController);
+
 // get single camera
-router.get("/:id",getSingleCameraController )
+router.get("/:id", getSingleCameraController)
 
 // add new single camera
 router.post("/", createCameraController);

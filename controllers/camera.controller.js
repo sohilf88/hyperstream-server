@@ -68,10 +68,13 @@ async function getFilteredCameraController(req, res, next) {
     query = query.skip(skipPages).limit(limitResult)
 
     // send respond for Quried Data
+    const count = await cameraSchemaModel.countDocuments()
     const filteredCameras = await query;
     res.status(200).json({
-      total: filteredCameras.length,
+      totalCount: count,
+      countPerPage: filteredCameras.length,
       result: filteredCameras,
+
 
     });
   } catch (error) {

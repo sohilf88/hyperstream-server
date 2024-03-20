@@ -1,22 +1,22 @@
 const usermodel = require("../models/user.model");
 const mongoose = require("mongoose");
 
-async function createUser(req, res, next) {
-  try {
-    const user = await usermodel.create(req.body)
-    res.status(200).json({ email: user.email, _id: user._id });
+// async function createUser(req, res, next) {
+//   try {
+//     const user = await usermodel.create(req.body)
+//     res.status(200).json({ email: user.email, _id: user._id });
 
-  } catch (error) {
-    res.status(400).json(error.message);
+//   } catch (error) {
+//     res.status(400).json(error.message);
 
-  }
+//   }
 
-}
+// }
 // get all users function
 async function getAllUsersController(req, res, next) {
   try {
 
-    const allUsers = await usermodel.find(req.query).limit(20).sort({ createAt: -1 });
+    const allUsers = await usermodel.find(req.query).select("-password -__v").sort({ createAt: -1 });
     res.status(200).json(allUsers);
   } catch (error) {
     res.status(400).json(error.message);
@@ -100,5 +100,5 @@ module.exports = {
   getSingleUserController,
   deleteUserController,
   updateUserController,
-  createUser,
+  
 };

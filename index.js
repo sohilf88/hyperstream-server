@@ -7,9 +7,14 @@ const mongoose = require("mongoose");
 const morgan = require("morgan");
 const app = express();
 const bodyParser = require('body-parser');
-
+const { logger, logEvents } = require("./middlewares/logger");
+const { errorHandle } = require("./middlewares/errorHandle");
+const corsOptions = require("./config/corsOption");
+const cookieParser = require("cookie-parser");
 // middlewares
-app.use(cors());
+app.use(cookieParser())  //cookie parser
+app.use(cors(corsOptions)) // cors
+app.use(logger)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
@@ -34,26 +39,56 @@ app.use((req, res, next) => {
   next(createHttpError.NotFound());
 });
 
-app.use((error, req, res, next) => {
-  error.status = error.status || 500;
-  res.status(error.status);
-  res.send(error);
-});
-const port = process.env.PORT || 5000; //port on server is listening
+// app.use((error, req, res, next) => {
+//   error.status = error.status || 500;
+//   res.status(error.status);
+//   res.send(error);
+// });
+// const port = process.env.PORT || 5000; //port on server is listening
 
+// // connecting database and then only listening on server on port 5000
+// mongoose
+//   .connect(process.env.DB_URL, {
+//     dbName: process.env.DB_NAME,
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+//   })
+//   .then(() => {
+//     console.log("connected database");
+//     //listening server function
+//   })
+//   .catch((error) => console.log(error.message));
+
+// app.listen(port, function () {
+//   console.log(`listening on port ${port}`);
+// });
+
+const port = process.env.PORT || 5500; //port on server is listening
 // connecting database and then only listening on server on port 5000
-mongoose
-  .connect(process.env.DB_URL, {
-    dbName: process.env.DB_NAME,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+
+
+const db_url = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@hyperstream.9sbxaff.mongodb.net/?retryWrites=true&w=majority`
+mongoose.connect(db_url, {
+  dbName: process.env.DB_NAME,
+
+
+})
   .then(() => {
     console.log("connected database");
     //listening server function
   })
   .catch((error) => console.log(error.message));
 
-app.listen(port, function () {
-  console.log(`listening on port ${port}`);
-});
+app.use(errorHandle)
+  ;
+mongoose.connection.once("open", () => {
+  app.listen(port, function () {
+    console.log(`listening on port ${port}`);
+  });
+
+})
+
+mongoose.connection.on("error", error => {
+  console.log(error)
+  logEvents(`${error.no}: ${error.code}\t${error.codeName}\t${error.syscall}\t${error.hostname}`, "mongooseErrorLogs.log")
+})

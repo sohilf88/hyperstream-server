@@ -68,9 +68,13 @@ const loginController = asyncHandler(async (req, res, next) => {
       success: false, message: "Email or password is wrong"
     })
   }
-
+  const token = jwt.sign({ _id: checkUserAccountInDB._id, email: checkUserAccountInDB.email }, process.env.JSONWEBTOKEN_KEY, {
+    expiresIn: "3d"
+  })
   res.status(201).json({
-    success: true, message: "Login Suceess"
+    success: true,
+    message: "Login Suceess",
+    access_key: token
   })
 
 

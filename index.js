@@ -11,6 +11,7 @@ const { logger, logEvents } = require("./middlewares/logger");
 const { errorHandle } = require("./middlewares/errorHandle");
 const corsOptions = require("./config/corsOption");
 const cookieParser = require("cookie-parser");
+
 // middlewares
 app.use(cookieParser())  //cookie parser
 app.use(cors(corsOptions)) // cors
@@ -22,6 +23,7 @@ app.use(
     extended: false,
   })
 );
+
 
 app.use(morgan("dev")); // used to see logs on console
 // handle error with below codee

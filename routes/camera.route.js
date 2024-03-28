@@ -8,6 +8,9 @@ const {
   getFilteredCameraController
   // deleteAllCameraController,
 } = require("../controllers/camera.controller");
+const verifyJWT = require("../middlewares/verifyJwt");
+// middleware
+router.use(verifyJWT)
 // get all cameras
 
 router.get("/", getAllCameraController);

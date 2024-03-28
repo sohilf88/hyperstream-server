@@ -7,8 +7,9 @@ const {
   updateUserController,
   createUser
 } = require("../controllers/user.controller");
+const verifyJWT = require("../middlewares/verifyJwt");
 
-
+router.use(verifyJWT)
 
 // get all users
 router.get("/", getAllUsersController);

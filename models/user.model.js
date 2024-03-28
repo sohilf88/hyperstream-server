@@ -52,9 +52,9 @@ userSchema.pre("save", async function (next) {
 })
 
 // compare password in login controller
-userSchema.methods.comparePassword = async function (userPassword, dbPassword) {
+// userSchema.methods.comparePassword = async function (userPassword, dbPassword) {
 
-  return await bcrypt.compare(userPassword, dbPassword);
-}
+//   return await bcrypt.compare(userPassword, dbPassword);
+// }
 
 module.exports = mongoose.model("user", userSchema);

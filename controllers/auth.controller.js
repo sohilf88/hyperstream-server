@@ -9,40 +9,53 @@ const signupController = asyncHandler(async (req, res, next) => {
 
   const { email, password, username, confirmPassword } = req.body;
 
-  try {
-    // check for all required fields
-    if (!username || !email || !password || !confirmPassword) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required"
-      })
-    }
-    //  check user in db by email id
-    const checkExistUserByMail = await usermodel.findOne({ email }).lean()
-    if (checkExistUserByMail) {
-      return res.status(400).json({
-        success: false,
-        message: "Email id is already registered"
-      })
-    }
-    // signup user
 
-    const user = await usermodel.create({ username, email, password, confirmPassword });
-    if (user) {
-      // generate token if user available, need to change role later
-      const token = jwt.sign({ _id: user._id, email: user.email, roles: "user" }, process.env.JSONWEBTOKEN_KEY, {
-        expiresIn: "3d"
-      })
-      res.status(200).json({
-        success: true,
-        message: `user ${username}has been created`,
-        access_key: token
-      });
-    }
-
-  } catch (error) {
-    res.status(400).json({ success: false, error: error.message });
+  // check for all required fields
+  if (!username || !email || !password || !confirmPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required"
+    })
   }
+  //  check user in db by email id
+  const checkExistUserByMail = await usermodel.findOne({ email }).lean()
+  console.log(checkExistUserByMail)
+  if (checkExistUserByMail) {
+    return res.status(400).json({
+      success: false,
+      message: "Email id is already registered"
+    })
+  }
+  // signup user
+
+  const user = await usermodel.create({ username, email, password, confirmPassword });
+  if (user) {
+    // generate token if user available, need to change role later
+    const accesstoken = jwt.sign({ username: user.username, email: user.email, roles: "user" }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
+      expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
+    })
+
+    const refreshToken = jwt.sign({ _id: user._id, username: user.username }, process.env.AUTH_REFRESH_TOKEN_SECRET, {
+      expiresIn: process.env.AUTH_REFRESH_TOKEN_EXPIRY
+    })
+    // create cookie with refresh token
+    res.cookie('jwtRe', refreshToken, {
+      httpOnly: true, //accessible only via browser
+      sameSite: "None",// cross-site cookie
+      secure: true,//https only
+      maxAge: 2 * 24 * 60 * 60 * 1000 // 2 day expire time
+    })
+
+    res.status(200).json({
+      success: true,
+      message: `user ${username} has been created`,
+      access_key: accesstoken
+    });
+  }
+
+
+  res.status(400).json({ success: false, message: "Given data is not correct" });
+
 });
 
 
@@ -51,6 +64,7 @@ const signupController = asyncHandler(async (req, res, next) => {
 // /api/v1/auth/login
 const loginController = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
+  console.log(req.body)
   // check all fields
   if (!email || !password) {
     return res.status(400).json({
@@ -74,7 +88,7 @@ const loginController = asyncHandler(async (req, res, next) => {
       success: false, message: "Email or password is wrong"
     })
   }
-  const accesstoken = jwt.sign({ username: checkUserAccountInDB.username, email: checkUserAccountInDB.email,roles: "user" }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
+  const accesstoken = jwt.sign({ username: checkUserAccountInDB.username, email: checkUserAccountInDB.email, roles: "user" }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
     expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
   })
 
@@ -88,7 +102,7 @@ const loginController = asyncHandler(async (req, res, next) => {
     secure: true,//https only
     maxAge: 2 * 24 * 60 * 60 * 1000 // 2 day expire time
   })
-  res.status(201).json({
+  res.status(200).json({
     success: true,
     message: "Login Suceess",
     accessToken: accesstoken
@@ -133,7 +147,7 @@ const refresh = async (req, res) => {
       // console.log(decoded)
       if (error) return res.status(403).json({ success: false, message: "Forbidden" })
       const searchUserInDb = await usermodel.findById({ _id: decoded._id })
-      if (!searchUserInDb) res.status(401).json({ success: false, message: "Unauthorized" })
+      if (!searchUserInDb) return res.status(401).json({ success: false, message: "Unauthorized" })
 
       // create access token, need to change role later
       const accesstoken = jwt.sign({ username: searchUserInDb.username, email: searchUserInDb.email, roles: "user" }, process.env.AUTH_ACCESS_TOKEN_SECRET, {

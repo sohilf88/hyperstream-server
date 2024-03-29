@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken")
+const userModel = require("../models/user.model")
 
 const verifyJWT = async (req, res, next) => {
     const authHeader = req.headers.authorization || req.headers.Authorization
@@ -11,11 +12,13 @@ const verifyJWT = async (req, res, next) => {
     // verify the token
 
     jwt.verify(
-        token, process.env.AUTH_ACCESS_TOKEN_SECRET, (error, decoded) => {
+        token, process.env.AUTH_ACCESS_TOKEN_SECRET, async (error, decoded) => {
             if (error) return res.status(403).json({ sucess: false, message: "Forbidden" })
             req.username = decoded.username;
             req.email = decoded.email;
             req.roles = decoded.roles;
+            const checkUser = await userModel.findOne({ email: req.email })
+            if (!checkUser) return res.status(403).json({ sucess: false, message: "User not found" })
             next()
         }
 

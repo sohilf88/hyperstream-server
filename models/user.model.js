@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema(
     active: {
       type: Boolean,
       default: true
-  },
+    },
     email: {
       type: String,
       required: true,
@@ -35,7 +35,8 @@ const userSchema = new mongoose.Schema(
         },
         message: "password does not match"
       }
-    }
+    },
+    passwordChangedAt: Date,
   },
   {
     timestamps: true,
@@ -51,10 +52,25 @@ userSchema.pre("save", async function (next) {
   next()
 })
 
- // compare password in login controller
+// compare password in login controller
 // userSchema.methods.comparePassword = async function (userPassword, dbPassword) {
 
 //   return await bcrypt.compare(userPassword, dbPassword);
 // }
+
+// check password changed after access token assigned
+userSchema.methods.checkPasswordAfterTokenAssigned = function (jwtTimeStamp) {
+  if (this.passwordChangedAt) {
+    const changedTimeStamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10) //convert into second with base is 10
+    // console.log(jwtTimeStamp, changedTimeStamp)
+    // if changed password after token issue means true
+    return jwtTimeStamp < changedTimeStamp
+
+  }
+
+  // not changed password means false
+
+  return false
+}
 
 module.exports = mongoose.model("user", userSchema);

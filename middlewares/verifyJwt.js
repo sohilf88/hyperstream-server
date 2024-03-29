@@ -17,8 +17,19 @@ const verifyJWT = async (req, res, next) => {
             req.username = decoded.username;
             req.email = decoded.email;
             req.roles = decoded.roles;
+            // verify if user present
             const checkUser = await userModel.findOne({ email: req.email })
             if (!checkUser) return res.status(403).json({ sucess: false, message: "User not found" })
+            // verify if password changed after token issued
+            if (checkUser.checkPasswordAfterTokenAssigned(decoded.iat)) {
+                res.clearCookie("jwtRe", {
+                    httpOnly: true, //accessible only via browser
+                    sameSite: "None",// cross-site cookie
+                    secure: true,//https only
+                })
+                return res.status(403).json({ sucess: false, message: "User recently changed password, Login again" })
+            }
+            //    Grant access to protected route
             next()
         }
 

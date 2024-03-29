@@ -147,7 +147,7 @@ const refresh = async (req, res) => {
       // console.log(decoded)
       if (error) return res.status(403).json({ success: false, message: "Forbidden" })
       const searchUserInDb = await usermodel.findById({ _id: decoded._id })
-      if (!searchUserInDb) return res.status(401).json({ success: false, message: "Unauthorized" })
+      if (!searchUserInDb) return res.status(401).json({ success: false, message: "User not exist" })
 
       // create access token, need to change role later
       const accesstoken = jwt.sign({ username: searchUserInDb.username, email: searchUserInDb.email, roles: "user" }, process.env.AUTH_ACCESS_TOKEN_SECRET, {

@@ -132,6 +132,7 @@ const logoutController = asyncHandler(async (req, res, next) => {
 const refresh = async (req, res) => {
   // /api/v1/auth/refresh 
   const cookies = req.cookies
+  console.log(cookies)
   if (!cookies?.jwtRe) {
     return res.status(401).json({
       sucess: false,

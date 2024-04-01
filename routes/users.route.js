@@ -7,7 +7,7 @@ const {
   updateUserController,
   createUser
 } = require("../controllers/user.controller");
-const verifyJWT = require("../middlewares/verifyJwt");
+const { verifyJWT } = require("../middlewares/verifyJwt");
 
 router.use(verifyJWT)
 

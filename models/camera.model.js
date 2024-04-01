@@ -42,7 +42,9 @@ const cameraSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: "user"
-    }
+
+    },
+
   },
   {
     timestamps: true,

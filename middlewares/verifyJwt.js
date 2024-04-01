@@ -19,6 +19,7 @@ const verifyJWT = async (req, res, next) => {
             req.roles = decoded.roles;
             // verify if user present
             const checkUser = await userModel.findOne({ email: req.email })
+
             if (!checkUser) return res.status(403).json({ sucess: false, message: "User not found" })
             // verify if password changed after token issued
             if (checkUser.checkPasswordAfterTokenAssigned(decoded.iat)) {
@@ -30,6 +31,8 @@ const verifyJWT = async (req, res, next) => {
                 return res.status(403).json({ sucess: false, message: "User recently changed password, Login again" })
             }
             //    Grant access to protected route
+
+            req.user = checkUser  //assigned for next middleware
             next()
         }
 
@@ -37,4 +40,19 @@ const verifyJWT = async (req, res, next) => {
 
 }
 
-module.exports = verifyJWT
+const roleRestrict = (...allowedRoles) => {
+    return (req, res, next) => {
+        if (!req.user.roles) return res.sendStatus(401)
+        const roleArray = [...allowedRoles]
+        // console.log("allowedRoles" + roleArray)
+        // console.log("req" + req.user.roles)
+        const roleAllowed = req.user.roles.map((role) => allowedRoles.includes(role)).find((value) => value === true)
+        // console.log(roleAllowed)
+        if (!roleAllowed) return res.sendStatus(401)
+
+        next()
+    }
+
+}
+
+module.exports = { verifyJWT, roleRestrict }

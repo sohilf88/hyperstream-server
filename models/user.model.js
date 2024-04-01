@@ -26,6 +26,12 @@ const userSchema = new mongoose.Schema(
       select: false, //this is used to hide from response
       validate: [validator.isStrongPassword, "please use Strong password with min 8 charector"]
     },
+    roles: {
+      type: Array,
+      required: true,
+      //root is super admin
+      default: "user"
+    },
     confirmPassword: {
       type: String,
       required: true,

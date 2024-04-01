@@ -7,7 +7,7 @@ const bcrypt = require("bcrypt")
 // /api/v1/auth/signup
 const signupController = asyncHandler(async (req, res, next) => {
 
-  const { email, password, username, confirmPassword } = req.body;
+  const { email, password, username, confirmPassword, roles } = req.body;
 
 
   // check for all required fields
@@ -28,10 +28,10 @@ const signupController = asyncHandler(async (req, res, next) => {
   }
   // signup user
 
-  const user = await usermodel.create({ username, email, password, confirmPassword });
+  const user = await usermodel.create({ username, email, password, confirmPassword, roles });
   if (user) {
     // generate token if user available, need to change role later
-    const accesstoken = jwt.sign({ username: user.username, email: user.email, roles: "user" }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
+    const accesstoken = jwt.sign({ username: user.username, email: user.email, roles: user.roles, _id: user._id }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
       expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
     })
 
@@ -88,7 +88,7 @@ const loginController = asyncHandler(async (req, res, next) => {
       success: false, message: "Email or password is wrong"
     })
   }
-  const accesstoken = jwt.sign({ username: checkUserAccountInDB.username, email: checkUserAccountInDB.email, roles: "user" }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
+  const accesstoken = jwt.sign({ username: checkUserAccountInDB.username, email: checkUserAccountInDB.email, roles: checkUserAccountInDB.roles }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
     expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
   })
 

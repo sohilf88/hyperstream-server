@@ -8,12 +8,12 @@ const {
   getFilteredCameraController
   // deleteAllCameraController,
 } = require("../controllers/camera.controller");
-const verifyJWT = require("../middlewares/verifyJwt");
+const { verifyJWT, roleRestrict } = require("../middlewares/verifyJwt");
 // middleware
 router.use(verifyJWT)
 // get all cameras
 
-router.get("/", getAllCameraController);
+router.get("/",  getAllCameraController);
 
 router.get("/filtered", getFilteredCameraController);
 
@@ -21,12 +21,12 @@ router.get("/filtered", getFilteredCameraController);
 router.get("/:id", getSingleCameraController)
 
 // add new single camera
-router.post("/", createCameraController);
+router.post("/",roleRestrict("root", "admin") ,createCameraController);
 
 // update single camera
-router.patch("/:id", updateCameraController);
+router.patch("/:id", roleRestrict("root", "admin"), updateCameraController);
 // delete single camera
-router.delete("/:id", deleteCameraController);
+router.delete("/:id",roleRestrict("root", "admin"), deleteCameraController);
 // delete all cameras
 // router.delete("/", deleteAllCameraController);
 

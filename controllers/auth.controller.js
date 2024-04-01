@@ -2,6 +2,7 @@ const usermodel = require("../models/user.model");
 const asyncHandler = require("express-async-handler")
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt")
+const validator = require("validator")
 
 // signup controller function
 // /api/v1/auth/signup
@@ -124,6 +125,7 @@ const logoutController = asyncHandler(async (req, res, next) => {
     secure: true,//https only
   })
   res.json({ success: true, message: "cookies cleared" })
+  return res.redirect("/login")
 
 
 
@@ -165,5 +167,28 @@ const refresh = async (req, res) => {
   )
 
 }
+// api/v1/auth/forgot-password controller
+const forgotPassword = asyncHandler(async (req, res, next) => {
+  // steps involved
+  const { email } = req.body
+  if (!validator.isEmail(email)) return res.status(400).json({ success: false, message: "please enter valid email address" })
+  // 1. get correct email address in post request
+  const userDetail = await usermodel.findOne({ email })
+  if (!userDetail) {
+    return res.status(404).json({ success: false, message: "Email address not found" })
+  }
+  // 2. generate random reset token
+  const resetToken = userDetail.createPasswordResetToken()
+  await userDetail.save({ validateBeforeSave: false })
 
-module.exports = { refresh, loginController, signupController, logoutController };
+  // 3. sent id to user's email
+
+})
+
+// api/v1/auth/reset-password controller
+const resetPassword = async (req, res, next) => {
+
+}
+
+
+module.exports = { refresh, loginController, signupController, logoutController, forgotPassword, resetPassword };

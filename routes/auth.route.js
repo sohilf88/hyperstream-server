@@ -4,7 +4,9 @@ const {
   signupController,
   loginController,
   logoutController,
-  refresh
+  refresh,
+  resetPassword,
+  forgotPassword
 
 } = require("../controllers/auth.controller");
 
@@ -20,4 +22,9 @@ router.post("/logout", logoutController)
 // refresh token
 
 router.get("/refresh", refresh)
+// forgot password
+router.post("/forgot-password", forgotPassword)
+// reset password
+router.post("/reset-password", resetPassword)
+
 module.exports = router;

@@ -3,14 +3,17 @@ const mongoose = require("mongoose");
 
 // get all cameras
 async function getAllCameraController(req, res, next) {
+
   try {
 
-
-    const allCameras = await cameraSchemaModel.find({userId:req.user._id}).limit();
-
+    console.log(userId)
+    const allCameras = await cameraSchemaModel.find().limit().select("-__V");
+    // const allCameras = await cameraSchemaModel.find({ userId: req.user._id }).limit().select("-__V");
+  
     res.status(200).json({
       total: allCameras.length,
-      result: allCameras
+      message: allCameras
+
     });
   } catch (error) {
     res.status(400).json(error.message);
@@ -130,8 +133,9 @@ async function getSingleCameraController(req, res, next) {
 // update user
 
 async function updateCameraController(req, res, next) {
+  console.log(req.body)
   const { name, district, taluka, city, area, url, isActive } = req.body
-  if (!name || !district || !taluka || !city || !area || !url || !isActive) {
+  if (!name || !district || !taluka || !city || !area || !url) {
     return res.status(400).json({
       success: false,
       message: "All fields must be filled, no blank"

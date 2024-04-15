@@ -6,7 +6,8 @@ const {
   logoutController,
   refresh,
   resetPassword,
-  forgotPassword
+  forgotPassword,
+  resetPasswordGet
 
 } = require("../controllers/auth.controller");
 
@@ -25,6 +26,7 @@ router.get("/refresh", refresh)
 // forgot password
 router.post("/forgot-password", forgotPassword)
 // reset password
-router.post("/reset-password", resetPassword)
+router.get("/reset-password/:token", resetPasswordGet)
+router.patch("/reset-password/:token", resetPassword)
 
 module.exports = router;

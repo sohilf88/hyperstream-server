@@ -2,7 +2,9 @@ const usermodel = require("../models/user.model");
 const asyncHandler = require("express-async-handler")
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt")
-const validator = require("validator")
+const validator = require("validator");
+const sendEmail = require("../helper/emailSent");
+const crypto = require("crypto")
 
 // signup controller function
 // /api/v1/auth/signup
@@ -42,8 +44,8 @@ const signupController = asyncHandler(async (req, res, next) => {
     // create cookie with refresh token
     res.cookie('jwtRe', refreshToken, {
       httpOnly: true, //accessible only via browser
-      sameSite: "None",// cross-site cookie
-      secure: true,//https only
+      sameSite: "lax",// cross-site cookie
+      secure: false,//https only, need to change to true
       maxAge: 2 * 24 * 60 * 60 * 1000 // 2 day expire time
     })
 
@@ -81,7 +83,7 @@ const loginController = asyncHandler(async (req, res, next) => {
   }
   //  compare provided password by user with stored db password in hash
   const checkPassword = await bcrypt.compare(password, checkUserAccountInDB.password)
-  console.log(checkPassword)
+  // console.log(checkPassword)
 
   // const isMatch = await checkUserAccountInDB.comparePassword(password, checkUserAccountInDB.password)
   if (!checkPassword) {
@@ -99,8 +101,8 @@ const loginController = asyncHandler(async (req, res, next) => {
   // create cookie with refresh token
   res.cookie('jwtRe', refreshToken, {
     httpOnly: true, //accessible only via browser
-    sameSite: "None",// cross-site cookie
-    secure: true,//https only
+    sameSite: "lax",// cross-site cookie
+    secure: false,//https only,need to change to true later
     maxAge: 2 * 24 * 60 * 60 * 1000 // 2 day expire time
   })
   res.status(200).json({
@@ -119,13 +121,14 @@ const logoutController = asyncHandler(async (req, res, next) => {
     return res.sendStatus(204) //no Content
 
   }
+
   res.clearCookie("jwtRe", {
     httpOnly: true, //accessible only via browser
-    sameSite: "None",// cross-site cookie
-    secure: true,//https only
+    sameSite: "lax",// cross-site cookie
+    secure: false,//https only
   })
   res.json({ success: true, message: "cookies cleared" })
-  return res.redirect("/login")
+  return res.redirect("/auth/signin")
 
 
 
@@ -182,13 +185,89 @@ const forgotPassword = asyncHandler(async (req, res, next) => {
   await userDetail.save({ validateBeforeSave: false })
 
   // 3. sent id to user's email
+  const resetUrl = `${req.protocol}://${req.get("host")}/api/v1/auth/reset-password/${resetToken}`
+  const message = `Forgot your password ? click on below link to reset it\n ${resetUrl}`
+  try {
+    await sendEmail({
+      email: userDetail.email,
+      subject: "Password Reset token valid for 10 min",
+      message: message
+    })
+    res.status(200).json({
+      success: true,
+      message: "password reset link sent to your email, please check your inbox"
+    })
+
+  } catch (error) {
+    userDetail.passwordResetToken = undefined,
+      userDetail.passwordResetExpire = undefined,
+      await userDetail.save({ validateBeforeSave: false })
+    return res.status(500).json({
+      success: false,
+      message: "error while sending reset link, please try later"
+    })
+  }
+
 
 })
 
+// reset password get method // need to remove
+const resetPasswordGet = asyncHandler(async (req, res, next) => {
+  // console.log("token is " + req.params.token)
+  if (!req.params.token) {
+    return res.status(400).json({ success: false, message: "invalid token" })
+  }
+  const hashTheToken = crypto.createHash("sha256").update(req.params.token).digest("hex")
+  const user = await usermodel.findOne({
+    passwordResetToken: hashTheToken,
+    passwordResetExpire: { $gt: Date.now() }
+  })
+  if (!user) return res.status(400).json({ success: false, message: "invalid token or expired" })
+  // req.token = hashTheToken
+  // console.log(hashTheToken)
+  // res.sendStatus(200).json(req.token)
+  // next()
+  req.user = user
+  res.status(304).redirect("http://localhost:3000/reset-password")
+})
+// need to remove above if not worked
+// get user based upon token
+
+
+
 // api/v1/auth/reset-password controller
-const resetPassword = async (req, res, next) => {
+const resetPassword = asyncHandler(async (req, res, next) => {
 
-}
+  if (!req.params.token) {
+    return res.status(400).json({ success: false, message: "invalid token" })
+  }
+  // get user based upon token
+
+  const hashTheToken = crypto.createHash("sha256").update(req.params.token).digest("hex")
+  // console.log(hashTheToken)
+  const user = await usermodel.findOne({
+    passwordResetToken: hashTheToken,
+    passwordResetExpire: { $gt: Date.now() }
+  })
+  // token is not expire and user is present, set new password
+  if (!user) return res.status(400).json({ success: false, message: "invalid token or expired" })
+  // update changePasswordAt property
+  user.password = req.body.password
+  user.confirmPassword = req.body.confirmPassword
+  user.passwordResetToken = undefined
+  user.passwordResetExpire = undefined
+  await user.save()
+  // login user by sending jwt
+  const accesstoken = jwt.sign({ username: user.username, email: user.email, roles: user.roles }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
+    expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
+  })
+  res.status(200).json({
+    success: true,
+    message: "password changed succesfully",
+    access_token: accesstoken
+  })
+
+})
 
 
-module.exports = { refresh, loginController, signupController, logoutController, forgotPassword, resetPassword };
+module.exports = { resetPasswordGet, refresh, loginController, signupController, logoutController, forgotPassword, resetPassword };

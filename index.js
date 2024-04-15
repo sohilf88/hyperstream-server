@@ -14,6 +14,7 @@ const cookieParser = require("cookie-parser");
 
 // middlewares
 app.use(cookieParser())  //cookie parser
+
 app.use(cors(corsOptions)) // cors
 app.use(logger)
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -37,8 +38,9 @@ app.use("/api/v1/auth", require("./routes/auth.route")); ///api/v1/auth/profile,
 app.use("/api/v1/camera", require("./routes/camera.route"));
 
 
-app.use((req, res, next) => {
-  next(createHttpError.NotFound());
+app.use("*", (req, res,) => {
+
+  return res.status(404).json({ success: false, message: "page does not exist" })
 });
 
 // app.use((error, req, res, next) => {

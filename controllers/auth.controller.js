@@ -43,8 +43,8 @@ const signupController = asyncHandler(async (req, res, next) => {
     })
     // create cookie with refresh token
     res.cookie('jwtRe', refreshToken, {
-      httpOnly: true, //accessible only via browser
-      sameSite: "lax",// cross-site cookie
+      httpOnly: false, //accessible only via browser
+      sameSite: "strict",// cross-site cookie
       secure: false,//https only, need to change to true
       maxAge: 2 * 24 * 60 * 60 * 1000 // 2 day expire time
     })
@@ -99,16 +99,20 @@ const loginController = asyncHandler(async (req, res, next) => {
     expiresIn: process.env.AUTH_REFRESH_TOKEN_EXPIRY
   })
   // create cookie with refresh token
-  res.cookie('jwtRe', refreshToken, {
+  res.status(202).cookie('jwtRe', refreshToken, {
     httpOnly: true, //accessible only via browser
-    sameSite: "lax",// cross-site cookie
+    sameSite: "none",// cross-site cookie
     secure: false,//https only,need to change to true later
     maxAge: 2 * 24 * 60 * 60 * 1000 // 2 day expire time
   })
-  res.status(200).json({
+  res.status(202).cookie('jwtAccess', accesstoken, {
+    httpOnly: false, //accessible only via browser
+    sameSite: "none",// cross-site cookie
+    secure: false,//https only,need to change to true later
+    maxAge: 1 * 1 * 15 * 60 * 1000 // 2 day expire time
+  }).json({
     success: true,
-    message: "Login Suceess",
-    accessToken: accesstoken
+    message: "Login Successful"
   })
 
 
@@ -123,7 +127,7 @@ const logoutController = asyncHandler(async (req, res, next) => {
   }
 
   res.clearCookie("jwtRe", {
-    httpOnly: true, //accessible only via browser
+    httpOnly: false, //accessible only via browser
     sameSite: "lax",// cross-site cookie
     secure: false,//https only
   })

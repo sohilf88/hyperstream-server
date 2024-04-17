@@ -12,9 +12,11 @@ const { errorHandle } = require("./middlewares/errorHandle");
 const corsOptions = require("./config/corsOption");
 const cookieParser = require("cookie-parser");
 
+
 // middlewares
 app.use(cookieParser())  //cookie parser
 
+// app.use(cors({origin:"http://localhost:3000",credentials:true})) // cors
 app.use(cors(corsOptions)) // cors
 app.use(logger)
 app.use(bodyParser.urlencoded({ extended: true }));

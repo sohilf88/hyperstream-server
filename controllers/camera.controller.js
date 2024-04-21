@@ -6,10 +6,10 @@ async function getAllCameraController(req, res, next) {
 
   try {
 
-    console.log(userId)
-    const allCameras = await cameraSchemaModel.find().limit().select("-__V");
-    // const allCameras = await cameraSchemaModel.find({ userId: req.user._id }).limit().select("-__V");
-  
+    // console.log(req.user._id)
+    // const allCameras = await cameraSchemaModel.find().limit().select("-__V");
+    const allCameras = await cameraSchemaModel.find({ userId: req.user._id }).select("-__v");
+   console.log(allCameras)
     res.status(200).json({
       total: allCameras.length,
       message: allCameras
@@ -150,7 +150,7 @@ async function updateCameraController(req, res, next) {
     }
     const camera = await cameraSchemaModel.findOneAndUpdate(
       { _id: id },
-      { name, district, taluka, city, area, url, isActive },
+      { name, district, taluka, city, area, url },
       // { ...req.body },
       { new: true }
     );

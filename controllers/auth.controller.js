@@ -41,19 +41,24 @@ const signupController = asyncHandler(async (req, res, next) => {
     const refreshToken = jwt.sign({ _id: user._id, username: user.username }, process.env.AUTH_REFRESH_TOKEN_SECRET, {
       expiresIn: process.env.AUTH_REFRESH_TOKEN_EXPIRY
     })
-    // create cookie with refresh token
-    res.cookie('jwtRe', refreshToken, {
-      httpOnly: false, //accessible only via browser
-      sameSite: "strict",// cross-site cookie
-      secure: false,//https only, need to change to true
-      maxAge: 2 * 24 * 60 * 60 * 1000 // 2 day expire time
-    })
+    // create cookie with refresh token & Access Cookies
+    return res.cookie('jwtRe', refreshToken, {
+      httpOnly: true, //accessible only via browser
+      sameSite: "none",// cross-site cookie
+      secure: true,//https only,need to change to true later
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours,
 
-    res.status(200).json({
-      success: true,
-      message: `user ${username} has been created`,
-      access_key: accesstoken
-    });
+    })
+      .cookie('jwtAccess', accesstoken, {
+        httpOnly: true, //accessible only via browser
+        sameSite: "none",// cross-site cookie
+        secure: true,//https only,need to change to true later
+        maxAge: 15 * 60 * 1000 // 15 minutes
+
+      }).json({
+        success: true,
+        message: "User Account created "
+      })
   }
 
 
@@ -99,21 +104,23 @@ const loginController = asyncHandler(async (req, res, next) => {
     expiresIn: process.env.AUTH_REFRESH_TOKEN_EXPIRY
   })
   // create cookie with refresh token
-  res.status(202).cookie('jwtRe', refreshToken, {
+  return res.cookie('jwtRe', refreshToken, {
     httpOnly: true, //accessible only via browser
     sameSite: "none",// cross-site cookie
-    secure: false,//https only,need to change to true later
-    maxAge: 2 * 24 * 60 * 60 * 1000 // 2 day expire time
+    secure: true,//https only,need to change to true later
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours,
+
   })
-  res.status(202).cookie('jwtAccess', accesstoken, {
-    httpOnly: false, //accessible only via browser
-    sameSite: "none",// cross-site cookie
-    secure: false,//https only,need to change to true later
-    maxAge: 1 * 1 * 15 * 60 * 1000 // 2 day expire time
-  }).json({
-    success: true,
-    message: "Login Successful"
-  })
+    .cookie('jwtAccess', accesstoken, {
+      httpOnly: true, //accessible only via browser
+      sameSite: "none",// cross-site cookie
+      secure: true,//https only,need to change to true later
+      maxAge: 15 * 60 * 1000 // 15 minutes
+
+    }).json({
+      success: true,
+      message: "Login Success"
+    })
 
 
 
@@ -126,13 +133,17 @@ const logoutController = asyncHandler(async (req, res, next) => {
 
   }
 
-  res.clearCookie("jwtRe", {
-    httpOnly: false, //accessible only via browser
+  return res.clearCookie("jwtRe", {
+    httpOnly: true, //accessible only via browser
     sameSite: "lax",// cross-site cookie
-    secure: false,//https only
-  })
-  res.json({ success: true, message: "cookies cleared" })
-  return res.redirect("/auth/signin")
+    secure: true,//https only
+  }).clearCookie("jwtAccess", {
+    httpOnly: true, //accessible only via browser
+    sameSite: "none",// cross-site cookie
+    secure: true,//https onl
+  }).sendStatus(200)
+  // res.json({ success: true, message: "cookies cleared" })
+  // return res.redirect("/auth/login")
 
 
 
@@ -141,34 +152,41 @@ const logoutController = asyncHandler(async (req, res, next) => {
 const refresh = async (req, res) => {
   // /api/v1/auth/refresh 
   const cookies = req.cookies
-  console.log(cookies)
+  // console.log(cookies)
   if (!cookies?.jwtRe) {
     return res.status(401).json({
       sucess: false,
-      message: "Unauthorized"
+      message: "Unauthorized Access"
     })
 
   }
   const refreshToken = cookies.jwtRe
+  // console.log(refreshToken)
   jwt.verify(
     refreshToken,
     process.env.AUTH_REFRESH_TOKEN_SECRET,
     asyncHandler(async (error, decoded) => {
-      // console.log(decoded)
-      if (error) return res.status(403).json({ success: false, message: "Forbidden" })
+      // console.log(decoded._id)
+      if (error) {
+        return res.status(403).json({ success: false, message: "Forbidden" })
+      }
       const searchUserInDb = await usermodel.findById({ _id: decoded._id })
-      if (!searchUserInDb) return res.status(401).json({ success: false, message: "User not exist" })
+      if (!searchUserInDb) {
+        return res.status(401).json({ success: false, message: "User not exist" })
+      }
 
       // create access token, need to change role later
-      const accesstoken = jwt.sign({ username: searchUserInDb.username, email: searchUserInDb.email, roles: "user" }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
+      const accesstoken = jwt.sign({ username: searchUserInDb.username, email: searchUserInDb.email, roles: searchUserInDb.roles }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
         expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
       })
+      console.log(accesstoken)
 
-      res.json({
-        success: true,
-
-        accessToken: accesstoken
-      })
+      return res.cookie('jwtAccess', accesstoken, {
+        httpOnly: true, //accessible only via browser
+        sameSite: "none",// cross-site cookie
+        secure: true,//https only,need to change to true later
+        maxAge: 15 * 60 * 1000 // 15 min expire time
+      }).json({ success: true, message: "Access Token Updated" })
 
     })
   )

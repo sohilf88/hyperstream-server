@@ -2,20 +2,24 @@ const jwt = require("jsonwebtoken")
 const userModel = require("../models/user.model")
 
 const verifyJWT = async (req, res, next) => {
-    const authHeader = req.headers.authorization || req.headers.Authorization
+    // console.log(req.cookies.jwtAccess)
+    if (!req.cookies.jwtAccess) {
+        return res.status(403).json({ sucess: false, message: "No Access Cookies" })
 
-    if (!authHeader?.startsWith("Bearer ")) {  //check for header
-        return res.status(401).json({ success: false, message: "Unauthorized" })
     }
+    const { jwtAccess } = req.cookies
 
-    const token = authHeader.split(" ")[1] //    grab the jwt string
 
-    // verify the token
+
 
     jwt.verify(
-        token, process.env.AUTH_ACCESS_TOKEN_SECRET, async (error, decoded) => {
-            
-            if (error) return res.status(403).json({ sucess: false, message: "Forbidden" })
+        jwtAccess, process.env.AUTH_ACCESS_TOKEN_SECRET, async (error, decoded) => {
+
+            if (error) {
+                console.log(error)
+                 return res.status(401).json({ sucess: false, message: error.message })
+            }
+            // console.log(decoded)
             req.username = decoded.username;
             req.email = decoded.email;
             req.roles = decoded.roles;
@@ -27,7 +31,7 @@ const verifyJWT = async (req, res, next) => {
             if (checkUser.checkPasswordAfterTokenAssigned(decoded.iat)) {
                 res.clearCookie("jwtRe", {
                     httpOnly: true, //accessible only via browser
-                    sameSite: "None",// cross-site cookie
+                    sameSite: "lax",// cross-site cookie
                     secure: true,//https only
                 })
                 return res.status(403).json({ sucess: false, message: "User recently changed password, Login again" })
@@ -50,7 +54,7 @@ const roleRestrict = (...allowedRoles) => {
         // console.log("req" + req.user.roles)
         const roleAllowed = req.user.roles.map((role) => allowedRoles.includes(role)).find((value) => value === true)
         console.log(roleAllowed)
-        if (!roleAllowed) return res.sendStatus(401)
+        if (!roleAllowed) return res.sendStatus(401).status("User not Allowed")
 
         next()
     }

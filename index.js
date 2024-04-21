@@ -12,7 +12,6 @@ const { errorHandle } = require("./middlewares/errorHandle");
 const corsOptions = require("./config/corsOption");
 const cookieParser = require("cookie-parser");
 
-
 // middlewares
 app.use(cookieParser())  //cookie parser
 

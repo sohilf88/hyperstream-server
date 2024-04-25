@@ -33,6 +33,7 @@ const signupController = asyncHandler(async (req, res, next) => {
 
   const user = await usermodel.create({ username, email, password, confirmPassword, roles });
   if (user) {
+    console.log(process.env.AUTH_ACCESS_TOKEN_EXPIRY,process.env.AUTH_REFRESH_TOKEN_EXPIRY)
     // generate token if user available, need to change role later
     const accesstoken = jwt.sign({ username: user.username, email: user.email, roles: user.roles, _id: user._id }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
       expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
@@ -46,14 +47,14 @@ const signupController = asyncHandler(async (req, res, next) => {
       httpOnly: true, //accessible only via browser
       sameSite: "none",// cross-site cookie
       secure: true,//https only,need to change to true later
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours,
+      expiresIn:process.env.AUTH_REFRESH_TOKEN_EXPIRY // 24 hours,
 
     })
       .cookie('jwtAccess', accesstoken, {
         httpOnly: true, //accessible only via browser
         sameSite: "none",// cross-site cookie
         secure: true,//https only,need to change to true later
-        maxAge: 15 * 60 * 1000 // 15 minutes
+        expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY // 15 minutes
 
       }).json({
         success: true,

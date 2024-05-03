@@ -8,7 +8,7 @@ const morgan = require("morgan");
 const app = express();
 const bodyParser = require('body-parser');
 const { logger, logEvents } = require("./middlewares/logger");
-const { errorHandle } = require("./middlewares/errorHandle");
+const { ErrorHandler, ApplicationError } = require("./middlewares/errorHandler");
 const corsOptions = require("./config/corsOption");
 const cookieParser = require("cookie-parser");
 
@@ -39,9 +39,9 @@ app.use("/api/v1/auth", require("./routes/auth.route")); ///api/v1/auth/profile,
 app.use("/api/v1/camera", require("./routes/camera.route"));
 
 
-app.use("*", (req, res,) => {
+app.all("*", (req, res, next) => {
 
-  return res.status(404).json({ success: false, message: "page does not exist" })
+  next(new ApplicationError(`route ${req.originalUrl} not found`, 404))
 });
 
 // app.use((error, req, res, next) => {
@@ -84,7 +84,7 @@ mongoose.connect(db_url, {
   })
   .catch((error) => console.log(error.message));
 
-app.use(errorHandle)
+app.use(ErrorHandler)
   ;
 mongoose.connection.once("open", () => {
   app.listen(port, function () {

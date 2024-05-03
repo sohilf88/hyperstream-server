@@ -33,7 +33,7 @@ const signupController = asyncHandler(async (req, res, next) => {
 
   const user = await usermodel.create({ username, email, password, confirmPassword, roles });
   if (user) {
-    console.log(process.env.AUTH_ACCESS_TOKEN_EXPIRY,process.env.AUTH_REFRESH_TOKEN_EXPIRY)
+    console.log(process.env.AUTH_ACCESS_TOKEN_EXPIRY, process.env.AUTH_REFRESH_TOKEN_EXPIRY)
     // generate token if user available, need to change role later
     const accesstoken = jwt.sign({ username: user.username, email: user.email, roles: user.roles, _id: user._id }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
       expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
@@ -47,14 +47,14 @@ const signupController = asyncHandler(async (req, res, next) => {
       httpOnly: true, //accessible only via browser
       sameSite: "none",// cross-site cookie
       secure: true,//https only,need to change to true later
-      expiresIn:process.env.AUTH_REFRESH_TOKEN_EXPIRY // 24 hours,
+      expiresIn: process.env.AUTH_REFRESH_TOKEN_EXPIRY // 24 hours,
 
     })
       .cookie('jwtAccess', accesstoken, {
         httpOnly: true, //accessible only via browser
         sameSite: "none",// cross-site cookie
         secure: true,//https only,need to change to true later
-        expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY // 15 minutes
+        expiresIn: process.env.AUTH_ACCESS_COOKIES_EXPIRY // 15 minutes
 
       }).json({
         success: true,
@@ -153,11 +153,11 @@ const logoutController = asyncHandler(async (req, res, next) => {
 const refresh = async (req, res) => {
   // /api/v1/auth/refresh 
   const cookies = req.cookies
-  // console.log(cookies)
+  console.log(cookies)
   if (!cookies?.jwtRe) {
-    return res.status(401).json({
+    return res.status(403).json({
       sucess: false,
-      message: "Unauthorized Access"
+      message: "Unauthorized, No Refresh Cookies found in request"
     })
 
   }
@@ -169,7 +169,7 @@ const refresh = async (req, res) => {
     asyncHandler(async (error, decoded) => {
       // console.log(decoded._id)
       if (error) {
-        return res.status(403).json({ success: false, message: "Forbidden" })
+        return res.status(403).json({ success: false, message: error.message })
       }
       const searchUserInDb = await usermodel.findById({ _id: decoded._id })
       if (!searchUserInDb) {
@@ -180,14 +180,14 @@ const refresh = async (req, res) => {
       const accesstoken = jwt.sign({ username: searchUserInDb.username, email: searchUserInDb.email, roles: searchUserInDb.roles }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
         expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
       })
-      console.log(accesstoken)
+      // console.log(accesstoken)
 
       return res.cookie('jwtAccess', accesstoken, {
         httpOnly: true, //accessible only via browser
         sameSite: "none",// cross-site cookie
         secure: true,//https only,need to change to true later
         maxAge: 15 * 60 * 1000 // 15 min expire time
-      }).json({ success: true, message: "Access Token Updated" })
+      }).status(201).json({ success: true, message: "Access Token Updated" })
 
     })
   )

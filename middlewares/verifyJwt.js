@@ -1,10 +1,12 @@
 const jwt = require("jsonwebtoken")
 const userModel = require("../models/user.model")
+const { ApplicationError } = require("./errorHandler")
 
 const verifyJWT = async (req, res, next) => {
-    // console.log(req.cookies.jwtAccess)
+    // console.log(req.cookies)
     if (!req.cookies.jwtAccess) {
-        return res.status(403).json({ sucess: false, message: "No Access Cookies" })
+        return next(new ApplicationError("Forbidden, No Access Cookies in Request", 403))
+        // return res.status(403).json({ sucess: false, message: "No Access Cookies" })
 
     }
     const { jwtAccess } = req.cookies
@@ -16,8 +18,8 @@ const verifyJWT = async (req, res, next) => {
         jwtAccess, process.env.AUTH_ACCESS_TOKEN_SECRET, async (error, decoded) => {
 
             if (error) {
-                console.log(error)
-                 return res.status(401).json({ sucess: false, message: error.message })
+                // console.log(error.name)
+                return next(new ApplicationError(error.message, 401))
             }
             // console.log(decoded)
             req.username = decoded.username;

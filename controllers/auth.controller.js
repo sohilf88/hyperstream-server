@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt")
 const validator = require("validator");
 const sendEmail = require("../helper/emailSent");
 const crypto = require("crypto");
+const { ApplicationError } = require("../middlewares/errorHandler");
 
 
 // signup controller function
@@ -139,7 +140,7 @@ const loginController = asyncHandler(async (req, res, next) => {
 const logoutController = asyncHandler(async (req, res, next) => {
   const cookies = req.cookies
   if (!cookies?.jwtRe) {
-    return res.sendStatus(204).redirect("/auth/login") //no Content
+    return next(new ApplicationError("No Refresh Cookies found", 400))
 
   }
 
@@ -151,20 +152,17 @@ const logoutController = asyncHandler(async (req, res, next) => {
     httpOnly: true, //accessible only via browser
     sameSite: "none",// cross-site cookie
     secure: true,//https onl
-  }).sendStatus(204)
+  })
 
 })
 
-const refresh = async (req, res) => {
+const refresh = async (req, res, next) => {
   // /api/v1/auth/refresh 
   const cookies = req.cookies
   console.log(cookies)
   if (!cookies?.jwtRe) {
     return next(new ApplicationError("Unauthorized,No Refresh cookies in request", 401))
-    // return res.status(403).json({
-    //   sucess: false,
-    //   message: "Unauthorized, No Refresh Cookies found in request"
-    // })
+
 
   }
   const refreshToken = cookies.jwtRe

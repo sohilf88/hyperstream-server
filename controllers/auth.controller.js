@@ -4,7 +4,8 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt")
 const validator = require("validator");
 const sendEmail = require("../helper/emailSent");
-const crypto = require("crypto")
+const crypto = require("crypto");
+
 
 // signup controller function
 // /api/v1/auth/signup
@@ -15,25 +16,27 @@ const signupController = asyncHandler(async (req, res, next) => {
 
   // check for all required fields
   if (!username || !email || !password || !confirmPassword) {
-    return res.status(400).json({
-      success: false,
-      message: "All fields are required"
-    })
+    return next(new ApplicationError("All fields are required", 400))
+    // return res.status(400).json({
+    //   success: false,
+    //   message: "All fields are required"
+    // })
   }
   //  check user in db by email id
   const checkExistUserByMail = await usermodel.findOne({ email }).lean()
-  console.log(checkExistUserByMail)
+  // console.log(checkExistUserByMail)
   if (checkExistUserByMail) {
-    return res.status(400).json({
-      success: false,
-      message: "Email id is already registered"
-    })
+    return next(new ApplicationError("Email id is already registered", 400))
+    // return res.status(400).json({
+    //   success: false,
+    //   message: "Email id is already registered"
+    // })
   }
   // signup user
 
   const user = await usermodel.create({ username, email, password, confirmPassword, roles });
   if (user) {
-    console.log(process.env.AUTH_ACCESS_TOKEN_EXPIRY, process.env.AUTH_REFRESH_TOKEN_EXPIRY)
+    // console.log(process.env.AUTH_ACCESS_TOKEN_EXPIRY, process.env.AUTH_REFRESH_TOKEN_EXPIRY)
     // generate token if user available, need to change role later
     const accesstoken = jwt.sign({ username: user.username, email: user.email, roles: user.roles, _id: user._id }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
       expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
@@ -47,7 +50,7 @@ const signupController = asyncHandler(async (req, res, next) => {
       httpOnly: true, //accessible only via browser
       sameSite: "none",// cross-site cookie
       secure: true,//https only,need to change to true later
-      expiresIn: process.env.AUTH_REFRESH_TOKEN_EXPIRY // 24 hours,
+      expiresIn: process.env.AUTH_REFRESH_COOKIE_EXPIRY // 48 hours,
 
     })
       .cookie('jwtAccess', accesstoken, {
@@ -58,12 +61,13 @@ const signupController = asyncHandler(async (req, res, next) => {
 
       }).json({
         success: true,
-        message: "User Account created "
+        message: "User Account created",
+        data: { name: user.username, roles: user.roles }
       })
   }
 
-
-  res.status(400).json({ success: false, message: "Given data is not correct" });
+  return next(new ApplicationError("Given data is not correct", 400))
+  // return res.status(400).json({ success: false, message: "Given data is not correct" });
 
 });
 
@@ -76,16 +80,18 @@ const loginController = asyncHandler(async (req, res, next) => {
   console.log(req.body)
   // check all fields
   if (!email || !password) {
-    return res.status(400).json({
-      success: false, message: "All fields are required"
-    })
+    return next(new ApplicationError("All fields are required", 400))
+    // return res.status(400).json({
+    //   success: false, message: "All fields are required"
+    // })
   }
   // check user in db with email and add password to compare
   const checkUserAccountInDB = await usermodel.findOne({ email }).select("+password");
   if (!checkUserAccountInDB || !checkUserAccountInDB.active) {
-    return res.status(400).json({
-      success: false, message: "Account was not found"
-    })
+    return next(new ApplicationError("Account was not found", 400))
+    // return res.status(400).json({
+    //   success: false, message: "Account was not found"
+    // })
   }
   //  compare provided password by user with stored db password in hash
   const checkPassword = await bcrypt.compare(password, checkUserAccountInDB.password)
@@ -93,9 +99,10 @@ const loginController = asyncHandler(async (req, res, next) => {
 
   // const isMatch = await checkUserAccountInDB.comparePassword(password, checkUserAccountInDB.password)
   if (!checkPassword) {
-    return res.status(401).json({
-      success: false, message: "Email or password is wrong"
-    })
+    return next(new ApplicationError("Email or password is wrong", 401))
+    // return res.status(401).json({
+    //   success: false, message: "Email or password is wrong"
+    // })
   }
   const accesstoken = jwt.sign({ username: checkUserAccountInDB.username, email: checkUserAccountInDB.email, roles: checkUserAccountInDB.roles }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
     expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
@@ -109,18 +116,20 @@ const loginController = asyncHandler(async (req, res, next) => {
     httpOnly: true, //accessible only via browser
     sameSite: "none",// cross-site cookie
     secure: true,//https only,need to change to true later
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours,
+    expiresIn: process.env.AUTH_REFRESH_COOKIE_EXPIRY // 48 hours,
+
 
   })
     .cookie('jwtAccess', accesstoken, {
       httpOnly: true, //accessible only via browser
       sameSite: "none",// cross-site cookie
       secure: true,//https only,need to change to true later
-      maxAge: 15 * 60 * 1000 // 15 minutes
+      expiresIn: process.env.AUTH_ACCESS_COOKIES_EXPIRY // 15 minutes
 
-    }).json({
+    },).json({
       success: true,
-      message: "Login Success"
+      message: "Login Success",
+      data: { name: checkUserAccountInDB.username, roles: checkUserAccountInDB.roles }
     })
 
 
@@ -130,23 +139,19 @@ const loginController = asyncHandler(async (req, res, next) => {
 const logoutController = asyncHandler(async (req, res, next) => {
   const cookies = req.cookies
   if (!cookies?.jwtRe) {
-    return res.sendStatus(204) //no Content
+    return res.sendStatus(204).redirect("/auth/login") //no Content
 
   }
 
   return res.clearCookie("jwtRe", {
     httpOnly: true, //accessible only via browser
-    sameSite: "lax",// cross-site cookie
+    sameSite: "none",// cross-site cookie
     secure: true,//https only
   }).clearCookie("jwtAccess", {
     httpOnly: true, //accessible only via browser
     sameSite: "none",// cross-site cookie
     secure: true,//https onl
-  }).sendStatus(200)
-  // res.json({ success: true, message: "cookies cleared" })
-  // return res.redirect("/auth/login")
-
-
+  }).sendStatus(204)
 
 })
 
@@ -155,10 +160,11 @@ const refresh = async (req, res) => {
   const cookies = req.cookies
   console.log(cookies)
   if (!cookies?.jwtRe) {
-    return res.status(403).json({
-      sucess: false,
-      message: "Unauthorized, No Refresh Cookies found in request"
-    })
+    return next(new ApplicationError("Unauthorized,No Refresh cookies in request", 401))
+    // return res.status(403).json({
+    //   sucess: false,
+    //   message: "Unauthorized, No Refresh Cookies found in request"
+    // })
 
   }
   const refreshToken = cookies.jwtRe
@@ -169,11 +175,12 @@ const refresh = async (req, res) => {
     asyncHandler(async (error, decoded) => {
       // console.log(decoded._id)
       if (error) {
-        return res.status(403).json({ success: false, message: error.message })
+        // return res.status(403).json({ success: false, message: error.message })
+        return next(new ApplicationError(error.message, 403))
       }
       const searchUserInDb = await usermodel.findById({ _id: decoded._id })
       if (!searchUserInDb) {
-        return res.status(401).json({ success: false, message: "User not exist" })
+        return next(new ApplicationError("User does not Exist", 401))
       }
 
       // create access token, need to change role later
@@ -197,11 +204,12 @@ const refresh = async (req, res) => {
 const forgotPassword = asyncHandler(async (req, res, next) => {
   // steps involved
   const { email } = req.body
-  if (!validator.isEmail(email)) return res.status(400).json({ success: false, message: "please enter valid email address" })
+  if (!validator.isEmail(email)) return next(new ApplicationError("please enter valid email", 400))
   // 1. get correct email address in post request
   const userDetail = await usermodel.findOne({ email })
   if (!userDetail) {
-    return res.status(404).json({ success: false, message: "Email address not found" })
+    return next(new ApplicationError("No user found", 404))
+    // return res.status(404).json({ success: false, message: "Email address not found" })
   }
   // 2. generate random reset token
   const resetToken = userDetail.createPasswordResetToken()
@@ -225,10 +233,11 @@ const forgotPassword = asyncHandler(async (req, res, next) => {
     userDetail.passwordResetToken = undefined,
       userDetail.passwordResetExpire = undefined,
       await userDetail.save({ validateBeforeSave: false })
-    return res.status(500).json({
-      success: false,
-      message: "error while sending reset link, please try later"
-    })
+    return next(new ApplicationError("error while sending reset link, please try later", 500))
+    // return res.status(500).json({
+    //   success: false,
+    //   message: "error while sending reset link, please try later"
+    // })
   }
 
 
@@ -238,20 +247,25 @@ const forgotPassword = asyncHandler(async (req, res, next) => {
 const resetPasswordGet = asyncHandler(async (req, res, next) => {
   // console.log("token is " + req.params.token)
   if (!req.params.token) {
-    return res.status(400).json({ success: false, message: "invalid token" })
+    // return res.status(400).json({ success: false, message: "invalid token" })
+    return next(new ApplicationError("invalid token", 400))
   }
   const hashTheToken = crypto.createHash("sha256").update(req.params.token).digest("hex")
   const user = await usermodel.findOne({
     passwordResetToken: hashTheToken,
     passwordResetExpire: { $gt: Date.now() }
   })
-  if (!user) return res.status(400).json({ success: false, message: "invalid token or expired" })
+  if (!user) {
+    return next(new ApplicationError("invalid token or expired", 400))
+    // return res.status(400).json({ success: false, message: "invalid token or expired" })
+  }
+
   // req.token = hashTheToken
   // console.log(hashTheToken)
   // res.sendStatus(200).json(req.token)
   // next()
   req.user = user
-  res.status(304).redirect("http://localhost:3000/reset-password")
+  res.status(304).redirect(process.env.REDIRECTED_URL_PASSWORD_RESET)
 })
 // need to remove above if not worked
 // get user based upon token
@@ -262,7 +276,8 @@ const resetPasswordGet = asyncHandler(async (req, res, next) => {
 const resetPassword = asyncHandler(async (req, res, next) => {
 
   if (!req.params.token) {
-    return res.status(400).json({ success: false, message: "invalid token" })
+    return next(new ApplicationError("invalid token", 400))
+    // return res.status(400).json({ success: false, message: "invalid token" })
   }
   // get user based upon token
 
@@ -273,7 +288,10 @@ const resetPassword = asyncHandler(async (req, res, next) => {
     passwordResetExpire: { $gt: Date.now() }
   })
   // token is not expire and user is present, set new password
-  if (!user) return res.status(400).json({ success: false, message: "invalid token or expired" })
+  if (!user) {
+    return next(new ApplicationError("invalid token or expired", 400))
+    // return res.status(400).json({ success: false, message: "invalid token or expired" })
+  }
   // update changePasswordAt property
   user.password = req.body.password
   user.confirmPassword = req.body.confirmPassword
@@ -284,11 +302,13 @@ const resetPassword = asyncHandler(async (req, res, next) => {
   const accesstoken = jwt.sign({ username: user.username, email: user.email, roles: user.roles }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
     expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
   })
-  res.status(200).json({
-    success: true,
-    message: "password changed succesfully",
-    access_token: accesstoken
-  })
+
+  return res.cookie('jwtAccess', accesstoken, {
+    httpOnly: true, //accessible only via browser
+    sameSite: "none",// cross-site cookie
+    secure: true,//https only,need to change to true later
+    expiresIn: process.env.AUTH_ACCESS_COOKIES_EXPIRY // 15 minutes
+  }).status(201).json({ success: true, message: "password changed succesfully" })
 
 })
 

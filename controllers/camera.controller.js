@@ -38,7 +38,8 @@ const getFilteredCameraController = asyncHandler(async (req, res, next) => {
   queryString = queryString.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`)
 
 
-  let query = cameraSchemaModel.find(JSON.parse(queryString))
+  // let query = cameraSchemaModel.find(JSON.parse(queryString)) // orignal but changed as below
+  let query = cameraSchemaModel.find({userId: req.user._id})
 
   // SORTING
 
@@ -71,7 +72,7 @@ const getFilteredCameraController = asyncHandler(async (req, res, next) => {
   query = query.skip(skipPages).limit(limitResult)
 
   // send respond for Quried Data
-  const count = await cameraSchemaModel.countDocuments()
+  const count = await cameraSchemaModel.countDocuments({userId: req.user._id})
   const filteredCameras = await query;
   res.status(200).json({
     success: true,

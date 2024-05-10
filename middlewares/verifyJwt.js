@@ -18,8 +18,8 @@ const verifyJWT = async (req, res, next) => {
         jwtAccess, process.env.AUTH_ACCESS_TOKEN_SECRET, async (error, decoded) => {
 
             if (error) {
-                // console.log(error.name)
-                return next(new ApplicationError(error.message, 401))
+                console.log(error)
+                return next(new ApplicationError(error.name, 401))
             }
             // console.log(decoded)
             req.username = decoded.username;
@@ -33,7 +33,7 @@ const verifyJWT = async (req, res, next) => {
             if (checkUser.checkPasswordAfterTokenAssigned(decoded.iat)) {
                 res.clearCookie("jwtRe", {
                     httpOnly: true, //accessible only via browser
-                    sameSite: "lax",// cross-site cookie
+                    sameSite: "none",// cross-site cookie
                     secure: true,//https only
                 })
                 return res.status(403).json({ sucess: false, message: "User recently changed password, Login again" })

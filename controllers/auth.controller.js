@@ -152,16 +152,16 @@ const logoutController = asyncHandler(async (req, res, next) => {
     httpOnly: true, //accessible only via browser
     sameSite: "none",// cross-site cookie
     secure: true,//https onl
-  })
+  }).sendStatus(200)
 
 })
 
 const refresh = async (req, res, next) => {
   // /api/v1/auth/refresh 
   const cookies = req.cookies
-  console.log(cookies)
+  // console.log(cookies)
   if (!cookies?.jwtRe) {
-    return next(new ApplicationError("Unauthorized,No Refresh cookies in request", 401))
+    return next(new ApplicationError("Unauthorized,No Refresh cookies", 401))
 
 
   }
@@ -178,7 +178,7 @@ const refresh = async (req, res, next) => {
       }
       const searchUserInDb = await usermodel.findById({ _id: decoded._id })
       if (!searchUserInDb) {
-        return next(new ApplicationError("User does not Exist", 401))
+        return next(new ApplicationError("User does not Exist", 404))
       }
 
       // create access token, need to change role later
@@ -191,7 +191,7 @@ const refresh = async (req, res, next) => {
         httpOnly: true, //accessible only via browser
         sameSite: "none",// cross-site cookie
         secure: true,//https only,need to change to true later
-        maxAge: 15 * 60 * 1000 // 15 min expire time
+        expiresIn: process.env.AUTH_ACCESS_COOKIES_EXPIRY // 15 min expire time
       }).status(201).json({ success: true, message: "Access Token Updated" })
 
     })
@@ -232,10 +232,7 @@ const forgotPassword = asyncHandler(async (req, res, next) => {
       userDetail.passwordResetExpire = undefined,
       await userDetail.save({ validateBeforeSave: false })
     return next(new ApplicationError("error while sending reset link, please try later", 500))
-    // return res.status(500).json({
-    //   success: false,
-    //   message: "error while sending reset link, please try later"
-    // })
+   
   }
 
 

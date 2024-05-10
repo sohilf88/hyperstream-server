@@ -3,7 +3,7 @@ const { logEvents } = require("./logger");
 
 
 const ErrorHandler = (err, req, res, next) => {
-    console.log("Middleware Error Hadnling" + err.stack);
+    // console.log("Middleware Error Hadnling" + err.stack);
     logEvents(`${err.name}:-${err.message}\t${req.method}\t${req.url}`, "errorLog.log")
     const errStatus = err.statusCode || 500;
     const errMsg = err.message || 'Something went wrong';
@@ -11,7 +11,7 @@ const ErrorHandler = (err, req, res, next) => {
         success: err.success,
         status: errStatus,
         message: errMsg,
-        stack: process.env.NODE_ENV === 'dev' ? err.stack : {}
+        // stack: process.env.NODE_ENV === 'dev' ? err.stack : {}
     })
 }
 

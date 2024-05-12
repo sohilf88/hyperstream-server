@@ -1,3 +1,4 @@
+const { ApplicationError } = require("../middlewares/errorHandler");
 const usermodel = require("../models/user.model");
 const mongoose = require("mongoose");
 
@@ -5,7 +6,6 @@ const mongoose = require("mongoose");
 // get all users function
 async function getAllUsersController(req, res, next) {
   try {
-
     const allUsers = await usermodel.find(req.query).select("-password -__v").sort({ createAt: -1 });
     res.status(200).json(allUsers);
   } catch (error) {
@@ -13,11 +13,12 @@ async function getAllUsersController(req, res, next) {
   }
 }
 
-
 // get single user detail for login
 
 async function getSingleUserController(req, res, next) {
+  // console.log(req.id)
   const { id } = req.params;
+
   try {
     // check the id if it is valid mongodb object id
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -28,11 +29,47 @@ async function getSingleUserController(req, res, next) {
     if (!user) {
       return res.status(404).json({ error: "No Such user found" });
     }
-    res.status(200).json({ email: user.email, _id: user._id });
+    res.status(200).json({
+      success: true,
+      message: {
+        username: user.username,
+        email: user.email,
+        roles: user.roles
+      }
+    });
   } catch (error) {
     res.status(400).json(error.message);
   }
 }
+
+// // update login user detail
+
+// const updateLoginUserController = async (req, res, next) => {
+//   const username = req.body.username
+//   if (!username) {
+//     return new ApplicationError("Username required", 400)
+//   }
+
+
+//   try {
+//     // check the id if it is valid mongodb object id
+//     if (!mongoose.Types.ObjectId.isValid(req.user._id)) {
+//       return res.status(400).json({ error: "invalid user id" });
+//     }
+//     const user = await usermodel.findById(req.user._id).lean();
+//     // check the id in database
+//     if (!user) {
+//       return res.status(404).json({ error: "No Such user found" });
+//     }
+//     console.log(user)
+//     user.username = username
+//     await user.save()
+//     res.status(200).json(user)
+//   } catch (error) {
+//     res.status(400).json(error.message);
+//   }
+// }
+
 
 // update user
 
@@ -90,5 +127,7 @@ module.exports = {
   getSingleUserController,
   deleteUserController,
   updateUserController,
-  
+  getUserProfileController,
+
+
 };

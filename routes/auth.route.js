@@ -7,18 +7,25 @@ const {
   refresh,
   resetPassword,
   forgotPassword,
-  resetPasswordGet
+  resetPasswordGet,
+  changeLoginUserPassword
 
 } = require("../controllers/auth.controller");
+const { verifyJWT } = require("../middlewares/verifyJwt");
 
-
+router.use(loginLimiter)
 
 // login Route
-router.post("/login", loginLimiter, loginController);
+router.post("/login", loginController);
 // signup route
 router.post("/signup", signupController);
 // logout
 router.post("/logout", logoutController)
+
+// change Logged in user password
+
+router.patch("/change-password", verifyJWT, changeLoginUserPassword)
+
 
 // refresh token
 
@@ -27,6 +34,9 @@ router.get("/refresh", refresh)
 router.post("/forgot-password", forgotPassword)
 // reset password
 router.get("/reset-password/:token", resetPasswordGet)
+
 router.patch("/reset-password/:token", resetPassword)
+
+
 
 module.exports = router;

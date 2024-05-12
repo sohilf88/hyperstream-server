@@ -6,6 +6,7 @@ const validator = require("validator");
 const sendEmail = require("../helper/emailSent");
 const crypto = require("crypto");
 const { ApplicationError } = require("../middlewares/errorHandler");
+const { verifyJWT } = require("../middlewares/verifyJwt");
 
 
 // signup controller function
@@ -18,10 +19,7 @@ const signupController = asyncHandler(async (req, res, next) => {
   // check for all required fields
   if (!username || !email || !password || !confirmPassword) {
     return next(new ApplicationError("All fields are required", 400))
-    // return res.status(400).json({
-    //   success: false,
-    //   message: "All fields are required"
-    // })
+
   }
   //  check user in db by email id
   const checkExistUserByMail = await usermodel.findOne({ email }).lean()
@@ -105,7 +103,7 @@ const loginController = asyncHandler(async (req, res, next) => {
     //   success: false, message: "Email or password is wrong"
     // })
   }
-  const accesstoken = jwt.sign({ username: checkUserAccountInDB.username, email: checkUserAccountInDB.email, roles: checkUserAccountInDB.roles }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
+  const accesstoken = jwt.sign({ username: checkUserAccountInDB.username, email: checkUserAccountInDB.email, roles: checkUserAccountInDB.roles, _id: checkUserAccountInDB._id }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
     expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
   })
 
@@ -232,7 +230,7 @@ const forgotPassword = asyncHandler(async (req, res, next) => {
       userDetail.passwordResetExpire = undefined,
       await userDetail.save({ validateBeforeSave: false })
     return next(new ApplicationError("error while sending reset link, please try later", 500))
-   
+
   }
 
 
@@ -307,5 +305,46 @@ const resetPassword = asyncHandler(async (req, res, next) => {
 
 })
 
+const changeLoginUserPassword = asyncHandler(async (req, res, next) => {
 
-module.exports = { resetPasswordGet, refresh, loginController, signupController, logoutController, forgotPassword, resetPassword };
+  const { currentPassword, newPassword, confirmNewPassword } = req.body
+  if (!currentPassword || !newPassword || !confirmNewPassword) {
+    return next(new ApplicationError("All fields are Required", 400))
+
+  }
+  if (newPassword !== confirmNewPassword) {
+    return next(new ApplicationError("new and confirm Password does not match", 400))
+  }
+  // console.log(req.user)
+
+  //  check for current password
+
+  // compare current password with database stored password
+  const user = await usermodel.findOne({ email: req.user.email }).select("+password");
+
+  const checkPassword = await bcrypt.compare(currentPassword, user.password)
+  if (!checkPassword) {
+    return next(new ApplicationError("current password was wrong", 401))
+
+  }
+
+  user.password = newPassword
+  user.confirmPassword = confirmNewPassword
+  // user.passwordResetToken = undefined
+  // user.passwordResetExpire = undefined
+  await user.save()
+  // login user by sending jwt
+  const accesstoken = jwt.sign({ username: user.username, email: user.email, roles: user.roles }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
+    expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
+  })
+
+  return res.cookie('jwtAccess', accesstoken, {
+    httpOnly: true, //accessible only via browser
+    sameSite: "none",// cross-site cookie
+    secure: true,//https only,need to change to true later
+    expiresIn: process.env.AUTH_ACCESS_COOKIES_EXPIRY // 15 minutes
+  }).status(201).json({ success: true, message: "password changed succesfully" })
+
+})
+
+module.exports = { changeLoginUserPassword, resetPasswordGet, refresh, loginController, signupController, logoutController, forgotPassword, resetPassword };

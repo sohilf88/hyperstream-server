@@ -10,6 +10,7 @@ const verifyJWT = async (req, res, next) => {
 
     }
     const { jwtAccess } = req.cookies
+    // const { jwtRe } = req.cookies
 
 
 
@@ -21,10 +22,11 @@ const verifyJWT = async (req, res, next) => {
                 console.log(error)
                 return next(new ApplicationError(error.name, 401))
             }
-            // console.log(decoded)
+            console.log(decoded)
             req.username = decoded.username;
             req.email = decoded.email;
             req.roles = decoded.roles;
+            req.id = decoded._id
             // verify if user present
             const checkUser = await userModel.findOne({ email: req.email })
 
@@ -41,6 +43,7 @@ const verifyJWT = async (req, res, next) => {
             //    Grant access to protected route
 
             req.user = checkUser  //assigned for next middleware
+
             next()
         }
 

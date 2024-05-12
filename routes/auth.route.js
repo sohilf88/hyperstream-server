@@ -1,8 +1,9 @@
 const loginLimiter = require("../middlewares/loginLimiter");
 const router = require("express").Router();
 const {loginController}=require("../controllers/auth/login")
+const { verifyJWT } = require("../middlewares/verifyJwt");
+const { signupController } = require("../controllers/auth/signup");
 const {
-  signupController,
   
   logoutController,
   refresh,
@@ -12,7 +13,7 @@ const {
   changeLoginUserPassword
 
 } = require("../controllers/auth.controller");
-const { verifyJWT } = require("../middlewares/verifyJwt");
+
 
 router.use(loginLimiter)
 

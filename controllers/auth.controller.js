@@ -347,4 +347,4 @@ const changeLoginUserPassword = asyncHandler(async (req, res, next) => {
 
 })
 
-module.exports = { changeLoginUserPassword, resetPasswordGet, refresh, signupController, logoutController, forgotPassword, resetPassword };
+module.exports = { changeLoginUserPassword, resetPasswordGet, refresh,  logoutController, forgotPassword, resetPassword };

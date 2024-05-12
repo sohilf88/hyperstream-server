@@ -44,31 +44,31 @@ async function getSingleUserController(req, res, next) {
 
 // // update login user detail
 
-// const updateLoginUserController = async (req, res, next) => {
-//   const username = req.body.username
-//   if (!username) {
-//     return new ApplicationError("Username required", 400)
-//   }
+const updateLoginUserController = async (req, res, next) => {
+  const username = req.body.username
+  if (!username) {
+    return new ApplicationError("Username required", 400)
+  }
 
 
-//   try {
-//     // check the id if it is valid mongodb object id
-//     if (!mongoose.Types.ObjectId.isValid(req.user._id)) {
-//       return res.status(400).json({ error: "invalid user id" });
-//     }
-//     const user = await usermodel.findById(req.user._id).lean();
-//     // check the id in database
-//     if (!user) {
-//       return res.status(404).json({ error: "No Such user found" });
-//     }
-//     console.log(user)
-//     user.username = username
-//     await user.save()
-//     res.status(200).json(user)
-//   } catch (error) {
-//     res.status(400).json(error.message);
-//   }
-// }
+  try {
+    // check the id if it is valid mongodb object id
+    if (!mongoose.Types.ObjectId.isValid(req.user._id)) {
+      return res.status(400).json({ error: "invalid user id" });
+    }
+    const user = await usermodel.findOne({ _id: req.user._id }).lean();
+    // check the id in database
+    if (!user) {
+      return res.status(404).json({ error: "No Such user found" });
+    }
+    console.log(user)
+    user.username = username
+    await user.save()
+    res.status(200).json(user)
+  } catch (error) {
+    res.status(400).json(error.message);
+  }
+}
 
 
 // update user
@@ -127,7 +127,8 @@ module.exports = {
   getSingleUserController,
   deleteUserController,
   updateUserController,
-  getUserProfileController,
+  
+  updateLoginUserController
 
 
 };

@@ -17,10 +17,10 @@ router.use(verifyJWT)
 router.get("/", getAllUsersController);
 //get user profile
 
-router.get("/profile", getUserProfileController)
+// router.get("/profile", getUserProfileController)
 
 // update Login user
-// router.patch("/loginUser", updateLoginUserController);
+router.patch("/loginUser", updateLoginUserController);
 
 // get single user
 router.get("/:id", getSingleUserController);

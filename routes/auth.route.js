@@ -1,20 +1,13 @@
 const loginLimiter = require("../middlewares/loginLimiter");
 const router = require("express").Router();
-const {loginController}=require("../controllers/auth/login")
+const { loginController } = require("../controllers/auth/login")
 const { verifyJWT } = require("../middlewares/verifyJwt");
 const { signupController } = require("../controllers/auth/signup");
-const {
-  
-  
-  
-  resetPassword,
-  forgotPassword,
-  resetPasswordGet,
-  changeLoginUserPassword
-
-} = require("../controllers/auth.controller");
 const { logoutController } = require("../controllers/auth/logout");
 const { refresh } = require("../controllers/auth/refreshToken");
+const { forgotPassword } = require("../controllers/auth/forgot-password");
+const { resetPassword } = require("../controllers/auth/reset-password");
+const { changeLoggedUserPassword } = require("../controllers/auth/changeLoggedUserPassword");
 
 
 router.use(loginLimiter)
@@ -28,7 +21,7 @@ router.post("/logout", logoutController)
 
 // change Logged in user password
 
-router.patch("/change-password", verifyJWT, changeLoginUserPassword)
+router.patch("/change-password", verifyJWT, changeLoggedUserPassword)
 
 
 // refresh token
@@ -36,8 +29,8 @@ router.patch("/change-password", verifyJWT, changeLoginUserPassword)
 router.get("/refresh", refresh)
 // forgot password
 router.post("/forgot-password", forgotPassword)
-// reset password
-router.get("/reset-password/:token", resetPasswordGet)
+// // reset password
+// router.get("/reset-password/:token", resetPasswordGet)
 
 router.patch("/reset-password/:token", resetPassword)
 

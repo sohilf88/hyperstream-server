@@ -11,64 +11,64 @@ const { verifyJWT } = require("../middlewares/verifyJwt");
 
 // signup controller function
 // /api/v1/auth/signup
-const signupController = asyncHandler(async (req, res, next) => {
+// const signupController = asyncHandler(async (req, res, next) => {
 
-  const { email, password, username, confirmPassword, roles } = req.body;
+//   const { email, password, username, confirmPassword, roles } = req.body;
 
 
-  // check for all required fields
-  if (!username || !email || !password || !confirmPassword) {
-    return next(new ApplicationError("All fields are required", 400))
+//   // check for all required fields
+//   if (!username || !email || !password || !confirmPassword) {
+//     return next(new ApplicationError("All fields are required", 400))
 
-  }
-  //  check user in db by email id
-  const checkExistUserByMail = await usermodel.findOne({ email }).lean()
-  // console.log(checkExistUserByMail)
-  if (checkExistUserByMail) {
-    return next(new ApplicationError("Email id is already registered", 400))
-    // return res.status(400).json({
-    //   success: false,
-    //   message: "Email id is already registered"
-    // })
-  }
-  // signup user
+//   }
+//   //  check user in db by email id
+//   const checkExistUserByMail = await usermodel.findOne({ email }).lean()
+//   // console.log(checkExistUserByMail)
+//   if (checkExistUserByMail) {
+//     return next(new ApplicationError("Email id is already registered", 400))
+//     // return res.status(400).json({
+//     //   success: false,
+//     //   message: "Email id is already registered"
+//     // })
+//   }
+//   // signup user
 
-  const user = await usermodel.create({ username, email, password, confirmPassword, roles });
-  if (user) {
-    // console.log(process.env.AUTH_ACCESS_TOKEN_EXPIRY, process.env.AUTH_REFRESH_TOKEN_EXPIRY)
-    // generate token if user available, need to change role later
-    const accesstoken = jwt.sign({ username: user.username, email: user.email, roles: user.roles, _id: user._id }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
-      expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
-    })
+//   const user = await usermodel.create({ username, email, password, confirmPassword, roles });
+//   if (user) {
+//     // console.log(process.env.AUTH_ACCESS_TOKEN_EXPIRY, process.env.AUTH_REFRESH_TOKEN_EXPIRY)
+//     // generate token if user available, need to change role later
+//     const accesstoken = jwt.sign({ username: user.username, email: user.email, roles: user.roles, _id: user._id }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
+//       expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
+//     })
 
-    const refreshToken = jwt.sign({ _id: user._id, username: user.username }, process.env.AUTH_REFRESH_TOKEN_SECRET, {
-      expiresIn: process.env.AUTH_REFRESH_TOKEN_EXPIRY
-    })
-    // create cookie with refresh token & Access Cookies
-    return res.cookie('jwtRe', refreshToken, {
-      httpOnly: true, //accessible only via browser
-      sameSite: "none",// cross-site cookie
-      secure: true,//https only,need to change to true later
-      expiresIn: process.env.AUTH_REFRESH_COOKIE_EXPIRY // 48 hours,
+//     const refreshToken = jwt.sign({ _id: user._id, username: user.username }, process.env.AUTH_REFRESH_TOKEN_SECRET, {
+//       expiresIn: process.env.AUTH_REFRESH_TOKEN_EXPIRY
+//     })
+//     // create cookie with refresh token & Access Cookies
+//     return res.cookie('jwtRe', refreshToken, {
+//       httpOnly: true, //accessible only via browser
+//       sameSite: "none",// cross-site cookie
+//       secure: true,//https only,need to change to true later
+//       expiresIn: process.env.AUTH_REFRESH_COOKIE_EXPIRY // 48 hours,
 
-    })
-      .cookie('jwtAccess', accesstoken, {
-        httpOnly: true, //accessible only via browser
-        sameSite: "none",// cross-site cookie
-        secure: true,//https only,need to change to true later
-        expiresIn: process.env.AUTH_ACCESS_COOKIES_EXPIRY // 15 minutes
+//     })
+//       .cookie('jwtAccess', accesstoken, {
+//         httpOnly: true, //accessible only via browser
+//         sameSite: "none",// cross-site cookie
+//         secure: true,//https only,need to change to true later
+//         expiresIn: process.env.AUTH_ACCESS_COOKIES_EXPIRY // 15 minutes
 
-      }).json({
-        success: true,
-        message: "User Account created",
-        data: { name: user.username, roles: user.roles }
-      })
-  }
+//       }).json({
+//         success: true,
+//         message: "User Account created",
+//         data: { name: user.username, roles: user.roles }
+//       })
+//   }
 
-  return next(new ApplicationError("Given data is not correct", 400))
-  // return res.status(400).json({ success: false, message: "Given data is not correct" });
+//   return next(new ApplicationError("Given data is not correct", 400))
+//   // return res.status(400).json({ success: false, message: "Given data is not correct" });
 
-});
+// });
 
 
 
@@ -135,67 +135,67 @@ const signupController = asyncHandler(async (req, res, next) => {
 
 // })
 // /api/v1/auth/logout
-const logoutController = asyncHandler(async (req, res, next) => {
-  const cookies = req.cookies
-  if (!cookies?.jwtRe) {
-    return next(new ApplicationError("No Refresh Cookies found", 400))
+// const logoutController = asyncHandler(async (req, res, next) => {
+//   const cookies = req.cookies
+//   if (!cookies?.jwtRe) {
+//     return next(new ApplicationError("No Refresh Cookies found", 400))
 
-  }
+//   }
 
-  return res.clearCookie("jwtRe", {
-    httpOnly: true, //accessible only via browser
-    sameSite: "none",// cross-site cookie
-    secure: true,//https only
-  }).clearCookie("jwtAccess", {
-    httpOnly: true, //accessible only via browser
-    sameSite: "none",// cross-site cookie
-    secure: true,//https onl
-  }).sendStatus(200)
+//   return res.clearCookie("jwtRe", {
+//     httpOnly: true, //accessible only via browser
+//     sameSite: "none",// cross-site cookie
+//     secure: true,//https only
+//   }).clearCookie("jwtAccess", {
+//     httpOnly: true, //accessible only via browser
+//     sameSite: "none",// cross-site cookie
+//     secure: true,//https onl
+//   }).sendStatus(200)
 
-})
+// })
 
-const refresh = async (req, res, next) => {
-  // /api/v1/auth/refresh 
-  const cookies = req.cookies
-  // console.log(cookies)
-  if (!cookies?.jwtRe) {
-    return next(new ApplicationError("Unauthorized,No Refresh cookies", 401))
+// const refresh = async (req, res, next) => {
+//   // /api/v1/auth/refresh 
+//   const cookies = req.cookies
+//   // console.log(cookies)
+//   if (!cookies?.jwtRe) {
+//     return next(new ApplicationError("Unauthorized,No Refresh cookies", 401))
 
 
-  }
-  const refreshToken = cookies.jwtRe
-  // console.log(refreshToken)
-  jwt.verify(
-    refreshToken,
-    process.env.AUTH_REFRESH_TOKEN_SECRET,
-    asyncHandler(async (error, decoded) => {
-      // console.log(decoded._id)
-      if (error) {
-        // return res.status(403).json({ success: false, message: error.message })
-        return next(new ApplicationError(error.message, 403))
-      }
-      const searchUserInDb = await usermodel.findById({ _id: decoded._id })
-      if (!searchUserInDb) {
-        return next(new ApplicationError("User does not Exist", 404))
-      }
+//   }
+//   const refreshToken = cookies.jwtRe
+//   // console.log(refreshToken)
+//   jwt.verify(
+//     refreshToken,
+//     process.env.AUTH_REFRESH_TOKEN_SECRET,
+//     asyncHandler(async (error, decoded) => {
+//       // console.log(decoded._id)
+//       if (error) {
+//         // return res.status(403).json({ success: false, message: error.message })
+//         return next(new ApplicationError(error.message, 403))
+//       }
+//       const searchUserInDb = await usermodel.findById({ _id: decoded._id })
+//       if (!searchUserInDb) {
+//         return next(new ApplicationError("User does not Exist", 404))
+//       }
 
-      // create access token, need to change role later
-      const accesstoken = jwt.sign({ username: searchUserInDb.username, email: searchUserInDb.email, roles: searchUserInDb.roles }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
-        expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
-      })
-      // console.log(accesstoken)
+//       // create access token, need to change role later
+//       const accesstoken = jwt.sign({ username: searchUserInDb.username, email: searchUserInDb.email, roles: searchUserInDb.roles }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
+//         expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
+//       })
+//       // console.log(accesstoken)
 
-      return res.cookie('jwtAccess', accesstoken, {
-        httpOnly: true, //accessible only via browser
-        sameSite: "none",// cross-site cookie
-        secure: true,//https only,need to change to true later
-        expiresIn: process.env.AUTH_ACCESS_COOKIES_EXPIRY // 15 min expire time
-      }).status(201).json({ success: true, message: "Access Token Updated" })
+//       return res.cookie('jwtAccess', accesstoken, {
+//         httpOnly: true, //accessible only via browser
+//         sameSite: "none",// cross-site cookie
+//         secure: true,//https only,need to change to true later
+//         expiresIn: process.env.AUTH_ACCESS_COOKIES_EXPIRY // 15 min expire time
+//       }).status(201).json({ success: true, message: "Access Token Updated" })
 
-    })
-  )
+//     })
+//   )
 
-}
+// }
 // api/v1/auth/forgot-password controller
 const forgotPassword = asyncHandler(async (req, res, next) => {
   // steps involved
@@ -347,4 +347,4 @@ const changeLoginUserPassword = asyncHandler(async (req, res, next) => {
 
 })
 
-module.exports = { changeLoginUserPassword, resetPasswordGet, refresh,  logoutController, forgotPassword, resetPassword };
+module.exports = { changeLoginUserPassword, resetPasswordGet,  forgotPassword, resetPassword };

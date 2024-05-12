@@ -5,14 +5,16 @@ const { verifyJWT } = require("../middlewares/verifyJwt");
 const { signupController } = require("../controllers/auth/signup");
 const {
   
-  logoutController,
-  refresh,
+  
+  
   resetPassword,
   forgotPassword,
   resetPasswordGet,
   changeLoginUserPassword
 
 } = require("../controllers/auth.controller");
+const { logoutController } = require("../controllers/auth/logout");
+const { refresh } = require("../controllers/auth/refreshToken");
 
 
 router.use(loginLimiter)

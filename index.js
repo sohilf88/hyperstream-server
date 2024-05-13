@@ -11,21 +11,27 @@ const { logger, logEvents } = require("./middlewares/logger");
 const { ErrorHandler, ApplicationError } = require("./middlewares/errorHandler");
 const corsOptions = require("./config/corsOption");
 const cookieParser = require("cookie-parser");
-
+const helmet = require("helmet");
+const nosqlSanitizer = require("express-mongo-sanitize")
+const xssProtect = require("xss-clean")
 // middlewares
-app.use(cookieParser())  //cookie parser
 
-// app.use(cors({origin:"http://localhost:3000",credentials:true})) // cors
-app.use(cors(corsOptions)) // cors
-app.use(logger)
-app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 app.use(
   express.urlencoded({
     extended: false,
   })
 );
+app.use(nosqlSanitizer())
+app.use(xssProtect())
+app.use(helmet())
+app.use(cookieParser())  //cookie parser
 
+
+app.use(cors(corsOptions)) // cors
+app.use(logger)
 
 app.use(morgan("dev")); // used to see logs on console
 // handle error with below codee

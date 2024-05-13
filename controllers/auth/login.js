@@ -9,7 +9,7 @@ const userModel = require("../../models/user.model");
 // /api/v1/auth/login
 const loginController = asyncHandler(async (req, res, next) => {
     const { email, password } = req.body;
-    console.log(req.body)
+    // console.log(req.body)
     // check all fields
     if (!email || !password) {
         return next(new ApplicationError("All fields are required", 400))
@@ -34,7 +34,7 @@ const loginController = asyncHandler(async (req, res, next) => {
         expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
     })
 
-    const refreshToken = jwt.sign({ _id: checkUserAccountInDB._id, username: checkUserAccountInDB.username }, process.env.AUTH_REFRESH_TOKEN_SECRET, {
+    const refreshToken = jwt.sign({ _id: checkUserAccountInDB._id }, process.env.AUTH_REFRESH_TOKEN_SECRET, {
         expiresIn: process.env.AUTH_REFRESH_TOKEN_EXPIRY
     })
     // create cookie with refresh token

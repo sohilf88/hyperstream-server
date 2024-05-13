@@ -2,11 +2,11 @@ const asyncHandler = require("express-async-handler")
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt")
 const validator = require("validator");
-const sendEmail = require("../../helper/emailSent");
+const sendEmail = require("../../../helper/emailSent");
 const crypto = require("crypto");
-const { ApplicationError } = require("../../middlewares/errorHandler");
-const { verifyJWT } = require("../../middlewares/verifyJwt");
-const userModel = require("../../models/user.model");
+const { ApplicationError } = require("../../../middlewares/errorHandler");
+const { verifyJWT } = require("../../../middlewares/verifyJwt");
+const userModel = require("../../../models/user.model");
 
 
 const changeLoggedUserPassword = asyncHandler(async (req, res, next) => {
@@ -51,4 +51,4 @@ const changeLoggedUserPassword = asyncHandler(async (req, res, next) => {
 
 })
 
-module.exports={changeLoggedUserPassword}
+module.exports = { changeLoggedUserPassword }

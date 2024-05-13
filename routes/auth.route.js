@@ -7,7 +7,7 @@ const { logoutController } = require("../controllers/auth/logout");
 const { refresh } = require("../controllers/auth/refreshToken");
 const { forgotPassword } = require("../controllers/auth/forgot-password");
 const { resetPassword } = require("../controllers/auth/reset-password");
-const { changeLoggedUserPassword } = require("../controllers/auth/changeLoggedUserPassword");
+const { changeLoggedUserPassword } = require("../controllers/user/profile/userProfilePassword");
 
 
 router.use(loginLimiter)

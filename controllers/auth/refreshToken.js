@@ -31,7 +31,7 @@ const refresh = async (req, res, next) => {
             }
 
             // create access token, need to change role later
-            const accesstoken = jwt.sign({ username: searchUserInDb.username, email: searchUserInDb.email, roles: searchUserInDb.roles }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
+            const accesstoken = jwt.sign({ username: searchUserInDb.username, email: searchUserInDb.email, roles: searchUserInDb.roles, _id: searchUserInDb._id }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
                 expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
             })
             // console.log(accesstoken)

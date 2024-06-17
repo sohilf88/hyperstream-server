@@ -5,7 +5,7 @@ const asyncHandler = require("express-async-handler")
 
 // get all cameras
 const getAllCameraController = asyncHandler(async (req, res, next) => {
-
+  console.log(req.query)
 
 
   const allCameras = await cameraSchemaModel.find({ userId: req.user._id }).select("-__v").lean();
@@ -39,7 +39,7 @@ const getFilteredCameraController = asyncHandler(async (req, res, next) => {
 
 
   // let query = cameraSchemaModel.find(JSON.parse(queryString)) // orignal but changed as below
-  let query = cameraSchemaModel.find({userId: req.user._id})
+  let query = cameraSchemaModel.find({ userId: req.user._id })
 
   // SORTING
 
@@ -72,7 +72,7 @@ const getFilteredCameraController = asyncHandler(async (req, res, next) => {
   query = query.skip(skipPages).limit(limitResult)
 
   // send respond for Quried Data
-  const count = await cameraSchemaModel.countDocuments({userId: req.user._id})
+  const count = await cameraSchemaModel.countDocuments({ userId: req.user._id })
   const filteredCameras = await query;
   res.status(200).json({
     success: true,

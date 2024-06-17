@@ -6,13 +6,13 @@ const userModel = require("../../../models/user.model");
 
 
 const userProfile = asyncHandler(async (req, res, next) => {
-    
-    const id = req.id;
-   
+    //    console.log(req.user)
+    const id = req.user.id;
+
 
     // check the id if it is valid mongodb object id
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        return next(new ApplicationError("invalid id", 404))
+        return next(new ApplicationError("invalid id", 400))
     }
     const user = await userModel.findById(id);
     // check the id in database

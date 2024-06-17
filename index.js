@@ -14,6 +14,8 @@ const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const nosqlSanitizer = require("express-mongo-sanitize")
 const xssProtect = require("xss-clean")
+const adminRouter = require("./routes/admin/admin.route")
+const userRouter = require("./routes/users.route")
 // middlewares
 
 app.use(express.json());
@@ -37,7 +39,12 @@ app.use(morgan("dev")); // used to see logs on console
 // handle error with below codee
 
 // !routes to handle all users related requests
-app.use("/api/v1/users", require("./routes/users.route"));
+app.use("/api/v1/users", userRouter);
+
+
+
+app.use("/api/v1/admin/users", adminRouter);
+app.use("/api/v1/admin/cameras", adminRouter);
 
 // !routes to handle login,logout,register related requests
 app.use("/api/v1/auth", require("./routes/auth.route")); ///api/v1/auth/profile,/api/v1/auth/login,auth/logout routes
@@ -47,32 +54,8 @@ app.use("/api/v1/camera", require("./routes/camera.route"));
 
 app.all("*", (req, res, next) => {
 
-  next(new ApplicationError(`route ${req.originalUrl} not found`, 404))
+  next(new ApplicationError(`route ${req.originalUrl} Not found`, 404))
 });
-
-// app.use((error, req, res, next) => {
-//   error.status = error.status || 500;
-//   res.status(error.status);
-//   res.send(error);
-// });
-// const port = process.env.PORT || 5000; //port on server is listening
-
-// // connecting database and then only listening on server on port 5000
-// mongoose
-//   .connect(process.env.DB_URL, {
-//     dbName: process.env.DB_NAME,
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-//   })
-//   .then(() => {
-//     console.log("connected database");
-//     //listening server function
-//   })
-//   .catch((error) => console.log(error.message));
-
-// app.listen(port, function () {
-//   console.log(`listening on port ${port}`);
-// });
 
 const port = process.env.PORT || 5500; //port on server is listening
 // connecting database and then only listening on server on port 5000
@@ -81,8 +64,6 @@ const port = process.env.PORT || 5500; //port on server is listening
 const db_url = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@hyperstream.9sbxaff.mongodb.net/?retryWrites=true&w=majority`
 mongoose.connect(db_url, {
   dbName: process.env.DB_NAME,
-
-
 })
   .then(() => {
     console.log("connected database");

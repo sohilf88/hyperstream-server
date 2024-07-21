@@ -76,10 +76,10 @@ const updateLoginUserController = async (req, res, next) => {
 async function updateUserController(req, res, next) {
   const { id } = req.params;
   //   check id for valid mongoose object type
-
+ console.log(req.body)
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(404).json({ error: "invalid user id" });
+      return res.status(404).json({ error: "invalid user id00" });
     }
     const user = await usermodel.findOneAndUpdate(
       { _id: id },

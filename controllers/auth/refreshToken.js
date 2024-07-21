@@ -10,7 +10,16 @@ const refresh = async (req, res, next) => {
     const cookies = req.cookies
     // console.log(cookies)
     if (!cookies?.jwtRe) {
-        return next(new ApplicationError("Unauthorized,No Refresh cookies", 401))
+        // return next(new ApplicationError("Unauthorized,No Refresh cookies", 400))
+        return res.clearCookie("jwtRe", {
+            httpOnly: true, //accessible only via browser
+            sameSite: "none",// cross-site cookie
+            secure: true,//https only
+        }).clearCookie("jwtAccess", {
+            httpOnly: true, //accessible only via browser
+            sameSite: "none",// cross-site cookie
+            secure: true,//https onl
+        }).sendStatus(200)
 
 
     }

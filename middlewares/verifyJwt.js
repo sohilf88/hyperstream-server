@@ -53,13 +53,13 @@ const verifyJWT = async (req, res, next) => {
 
 const roleRestrict = (...allowedRoles) => {
     return (req, res, next) => {
-        if (!req.user.roles) return res.sendStatus(401).json("Not Authorized User")
+        if (!req.user.roles) return res.sendStatus(400).json({ success: true, message: "Unautorized" })
         const roleArray = [...allowedRoles]
         // console.log("allowedRoles" + roleArray)
         // console.log("req" + req.user.roles)
         const roleAllowed = req.user.roles.map((role) => allowedRoles.includes(role)).find((value) => value === true)
         console.log(roleAllowed)
-        if (!roleAllowed) return res.sendStatus(401).status("User not Allowed")
+        if (!roleAllowed) return res.sendStatus(400).json({ success: true, message: "Unautorized" })
 
         next()
     }

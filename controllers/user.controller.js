@@ -18,6 +18,7 @@ async function getAllUsersController(req, res, next) {
 async function getSingleUserController(req, res, next) {
   // console.log(req.id)
   const { id } = req.params;
+  console.log(id)
 
   try {
     // check the id if it is valid mongodb object id
@@ -32,6 +33,7 @@ async function getSingleUserController(req, res, next) {
     res.status(200).json({
       success: true,
       message: {
+        id:user._id,
         username: user.username,
         email: user.email,
         roles: user.roles
@@ -73,30 +75,30 @@ const updateLoginUserController = async (req, res, next) => {
 
 // update user
 
-async function updateUserController(req, res, next) {
-  const { id } = req.params;
-  //   check id for valid mongoose object type
- console.log(req.body)
-  try {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(404).json({ error: "invalid user id00" });
-    }
-    const user = await usermodel.findOneAndUpdate(
-      { _id: id },
-      { ...req.body },
-      { new: true }
-    );
-    //   check response if id is valid but not present in db, return error
-    if (!user) {
-      return res.status(404).json({ error: "No Such User found" });
-    }
-    // if id found return below response
+// async function updateUserController(req, res, next) {
+//   const { id } = req.params;
+//   //   check id for valid mongoose object type
+//  console.log(req.body)
+//   try {
+//     if (!mongoose.Types.ObjectId.isValid(id)) {
+//       return res.status(404).json({ error: "invalid user id" });
+//     }
+//     const user = await usermodel.findOneAndUpdate(
+//       { _id: id },
+//       { ...req.body },
+//       { new: true }
+//     );
+//     //   check response if id is valid but not present in db, return error
+//     if (!user) {
+//       return res.status(404).json({ error: "No Such User found" });
+//     }
+//     // if id found return below response
 
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(400).json(error.message);
-  }
-}
+//     res.status(200).json(user);
+//   } catch (error) {
+//     res.status(400).json(error.message);
+//   }
+// }
 
 // delete user
 
@@ -126,8 +128,7 @@ module.exports = {
   getAllUsersController,
   getSingleUserController,
   deleteUserController,
-  updateUserController,
-  
+   
   updateLoginUserController
 
 

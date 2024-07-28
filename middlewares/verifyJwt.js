@@ -22,7 +22,7 @@ const verifyJWT = async (req, res, next) => {
                 console.log(error)
                 return next(new ApplicationError(error.name, 401))
             }
-            console.log(decoded)
+            // console.log(decoded)
             req.username = decoded.username;
             req.email = decoded.email;
             req.roles = decoded.roles;
@@ -58,7 +58,7 @@ const roleRestrict = (...allowedRoles) => {
         // console.log("allowedRoles" + roleArray)
         // console.log("req" + req.user.roles)
         const roleAllowed = req.user.roles.map((role) => allowedRoles.includes(role)).find((value) => value === true)
-        console.log(roleAllowed)
+        // console.log(roleAllowed)
         if (!roleAllowed) return res.sendStatus(400).json({ success: true, message: "Unautorized" })
 
         next()

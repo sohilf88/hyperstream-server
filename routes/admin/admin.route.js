@@ -1,7 +1,7 @@
 const router = require("express").Router();
-const { getAllUsersController, getSingleUserController, updateUserController, deleteUserController } = require("../../controllers/user.controller");
+const { getAllUsersController, getSingleUserController, deleteUserController } = require("../../controllers/user.controller");
 const { roleRestrict, verifyJWT } = require("../../middlewares/verifyJwt");
-const { getAllUsersCameraforAdmin, getSpecificUsersCamera } = require("./admin.controller");
+const { getAllUsersCameraforAdmin, getSpecificUsersCamera, updateUserControllerByAdmin } = require("./admin.controller");
 
 
 
@@ -20,7 +20,10 @@ router.get("/", getAllUsersController);
 router.get("/:id", getSingleUserController);
 
 // update specific user
-router.patch("/:id", updateUserController);
+router.patch("/:id", updateUserControllerByAdmin);
+
+//reset password for specific user by admin
+// router.patch("/reset-password/:id", );
 
 // delete single user
 router.delete("/:id", deleteUserController);

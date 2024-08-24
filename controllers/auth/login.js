@@ -17,19 +17,26 @@ const loginController = asyncHandler(async (req, res, next) => {
     }
     // check user in db with email and add password to compare
     const checkUserAccountInDB = await userModel.findOne({ email }).select("+password");
-    if (!checkUserAccountInDB || !checkUserAccountInDB.active) {
+    console.log(checkUserAccountInDB)
+    if (!checkUserAccountInDB) {
         return next(new ApplicationError("Account was not found", 400))
 
     }
+    if (!checkUserAccountInDB.isActive) {
+        return next(new ApplicationError("Account was disabled", 409))
+
+    }
+
     //  compare provided password by user with stored db password in hash
     const checkPassword = await bcrypt.compare(password, checkUserAccountInDB.password)
     // console.log(checkPassword)
 
     // const isMatch = await checkUserAccountInDB.comparePassword(password, checkUserAccountInDB.password)
     if (!checkPassword) {
-        return next(new ApplicationError("Email or password is wrong", 401))
+        return next(new ApplicationError("Email or Password was Wrong", 401))
 
     }
+
     const accesstoken = jwt.sign({ username: checkUserAccountInDB.username, email: checkUserAccountInDB.email, roles: checkUserAccountInDB.roles, _id: checkUserAccountInDB._id }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
         expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
     })
@@ -42,7 +49,9 @@ const loginController = asyncHandler(async (req, res, next) => {
         httpOnly: true, //accessible only via browser
         sameSite: "none",// cross-site cookie
         secure: true,//https only,need to change to true later
-        expiresIn: process.env.AUTH_REFRESH_COOKIE_EXPIRY // 48 hours,
+        maxAge: 60 * 60 * 24 * 1000
+
+
 
 
     })
@@ -50,17 +59,20 @@ const loginController = asyncHandler(async (req, res, next) => {
             httpOnly: true, //accessible only via browser
             sameSite: "none",// cross-site cookie
             secure: true,//https only,need to change to true later
-            expiresIn: process.env.AUTH_ACCESS_COOKIES_EXPIRY // 15 minutes
+            maxAge: 15 * 60 * 1000 // 15 minutes
+            // expiresIn: 10000 // 48 hours,
+
 
         },).json({
             success: true,
             message: "Login Success",
             data: { name: checkUserAccountInDB.username, roles: checkUserAccountInDB.roles }
         })
+}
 
 
 
-})
+)
 
 
 module.exports = { loginController }

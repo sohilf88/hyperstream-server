@@ -5,7 +5,7 @@ const { ApplicationError } = require("./errorHandler")
 const verifyJWT = async (req, res, next) => {
     // console.log(req.cookies)
     if (!req.cookies.jwtAccess) {
-        return next(new ApplicationError("Forbidden, No Access Cookies in Request", 403))
+        return next(new ApplicationError("Forbidden, No Access Cookies in Request", 401))
         // return res.status(403).json({ sucess: false, message: "No Access Cookies" })
 
     }
@@ -19,7 +19,7 @@ const verifyJWT = async (req, res, next) => {
         jwtAccess, process.env.AUTH_ACCESS_TOKEN_SECRET, async (error, decoded) => {
 
             if (error) {
-                console.log(error)
+                // console.log(error)
                 return next(new ApplicationError(error.name, 401))
             }
             // console.log(decoded)
@@ -30,7 +30,7 @@ const verifyJWT = async (req, res, next) => {
             // verify if user present
             const checkUser = await userModel.findOne({ email: req.email })
 
-            if (!checkUser) return res.status(403).json({ sucess: false, message: "User not found" })
+            if (!checkUser || !checkUser.isActive) return new ApplicationError("User Not Found",403)
             // verify if password changed after token issued
             if (checkUser.checkPasswordAfterTokenAssigned(decoded.iat)) {
                 res.clearCookie("jwtRe", {
@@ -38,7 +38,8 @@ const verifyJWT = async (req, res, next) => {
                     sameSite: "none",// cross-site cookie
                     secure: true,//https only
                 })
-                return res.status(403).json({ sucess: false, message: "User recently changed password, Login again" })
+                // return res.status(403).json({ sucess: false, message: "User recently changed password, Login again" })
+                return (new ApplicationError("User recently changed password, Login again", 403))
             }
             //    Grant access to protected route
 
@@ -53,15 +54,20 @@ const verifyJWT = async (req, res, next) => {
 
 const roleRestrict = (...allowedRoles) => {
     return (req, res, next) => {
-        if (!req.user.roles) return res.sendStatus(400).json({ success: true, message: "Unautorized" })
-        const roleArray = [...allowedRoles]
-        // console.log("allowedRoles" + roleArray)
-        // console.log("req" + req.user.roles)
-        const roleAllowed = req.user.roles.map((role) => allowedRoles.includes(role)).find((value) => value === true)
-        // console.log(roleAllowed)
-        if (!roleAllowed) return res.sendStatus(400).json({ success: true, message: "Unautorized" })
+        // console.log(allowedRoles);
+        // console.log(!allowedRoles.includes(req.user.roles))
 
-        next()
+        if (!req.user.roles) {
+            return (new ApplicationError("UnAuthorized", 403))
+        }
+
+        if (!allowedRoles.includes(req.user.roles)) {
+            // return (new ApplicationError("You do not have Permission to Access Resources", 403))
+            // return (new ApplicationError(req.user.roles, 403))
+            return res.status(401).json({ success: false, message: "Not Allowed" })
+        }
+
+        return next()
     }
 
 }

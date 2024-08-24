@@ -1,7 +1,7 @@
 const loginLimiter = require("../middlewares/loginLimiter");
 const router = require("express").Router();
 const { loginController } = require("../controllers/auth/login")
-const { verifyJWT } = require("../middlewares/verifyJwt");
+const { verifyJWT, roleRestrict } = require("../middlewares/verifyJwt");
 const { signupController } = require("../controllers/auth/signup");
 const { logoutController } = require("../controllers/auth/logout");
 const { refresh } = require("../controllers/auth/refreshToken");
@@ -10,12 +10,12 @@ const { resetPassword } = require("../controllers/auth/reset-password");
 const { changeLoggedUserPassword } = require("../controllers/user/profile/userProfilePassword");
 
 
-router.use(loginLimiter)
+// router.use(loginLimiter)
 
 // login Route
-router.post("/login", loginController);
+router.post("/login", loginLimiter, loginController);
 // signup route
-router.post("/signup", signupController);
+router.post("/signup", verifyJWT, roleRestrict("root"), signupController);
 // logout
 router.post("/logout", logoutController)
 

@@ -88,6 +88,7 @@ const getFilteredCameraController = asyncHandler(async (req, res, next) => {
 const createCameraController = asyncHandler(async (req, res, next) => {
   const { name, district, taluka, city, area, url, isActive } = req.body
   const userId = req.user._id
+  console.log(userId)
 
 
 

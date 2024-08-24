@@ -1,7 +1,7 @@
 const router = require("express").Router();
-const { getAllUsersController, getSingleUserController, deleteUserController } = require("../../controllers/user.controller");
+const {  getSingleUserController } = require("../../controllers/user.controller");
 const { roleRestrict, verifyJWT } = require("../../middlewares/verifyJwt");
-const { getAllUsersCameraforAdmin, getSpecificUsersCamera, updateUserControllerByAdmin } = require("./admin.controller");
+const { getAllUsersCameraforAdmin, getSpecificUsersCamera, updateUserControllerByAdmin, resetUserPasswordByAdmin, getAllUsersAdminController, deleteUserByAdmin, getAllDisableUsersAdminController } = require("./admin.controller");
 
 
 
@@ -14,19 +14,21 @@ router.get("/specific", getSpecificUsersCamera);
 
 
 //  all users related routes
-router.get("/", getAllUsersController);
+router.get("/", getAllUsersAdminController);
+// router.get("/disable", getAllDisableUsersAdminController);
 
 // get single user
 router.get("/:id", getSingleUserController);
 
 // update specific user
 router.patch("/:id", updateUserControllerByAdmin);
+router.patch("/update-password/:id", resetUserPasswordByAdmin);
 
 //reset password for specific user by admin
 // router.patch("/reset-password/:id", );
 
 // delete single user
-router.delete("/:id", deleteUserController);
+router.delete("/:id", deleteUserByAdmin);
 
 
 module.exports = router;

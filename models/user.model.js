@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true
     },
-    active: {
+    isActive: {
       type: Boolean,
       default: true
     },
@@ -27,8 +27,9 @@ const userSchema = new mongoose.Schema(
       validate: [validator.isStrongPassword, "please use Strong password with min 8 charector"]
     },
     roles: {
-      type: Array,
+      type: String,
       required: true,
+      enum: ['user', 'admin', 'root'],
       //root is super admin
       default: "user"
     },
@@ -86,7 +87,7 @@ userSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(64).toString("hex")
   // encrypt reset token
   this.passwordResetToken = crypto.createHash("sha256").update(resetToken).digest("hex")
-  
+
   this.passwordResetExpire = Date.now() + 10 * 60 * 1000  //10 min time to reset
   return resetToken
 }

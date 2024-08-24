@@ -8,7 +8,7 @@ const userModel = require("../../models/user.model");
 // /api/v1/auth/signup
 const signupController = asyncHandler(async (req, res, next) => {
 
-    const { email, password, username, confirmPassword, roles } = req.body;
+    const { email, password, username, confirmPassword, roles,isActive } = req.body;
 
 
     // check for all required fields
@@ -28,36 +28,40 @@ const signupController = asyncHandler(async (req, res, next) => {
     }
     // signup user
 
-    const user = await userModel.create({ username, email, password, confirmPassword, roles });
+    const user = await userModel.create({ username, email, password, confirmPassword, roles,isActive });
     if (user) {
+        return res.json({
+                    success: true,
+                    message: "User Account created",
+                    data: { name: user.username, roles: user.roles }})
         // console.log(process.env.AUTH_ACCESS_TOKEN_EXPIRY, process.env.AUTH_REFRESH_TOKEN_EXPIRY)
         // generate token if user available, need to change role later
-        const accesstoken = jwt.sign({ username: user.username, email: user.email, roles: user.roles, _id: user._id }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
-            expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
-        })
+        // const accesstoken = jwt.sign({ username: user.username, email: user.email, roles: user.roles, _id: user._id }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
+        //     expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
+        // })
 
-        const refreshToken = jwt.sign({ _id: user._id}, process.env.AUTH_REFRESH_TOKEN_SECRET, {
-            expiresIn: process.env.AUTH_REFRESH_TOKEN_EXPIRY
-        })
-        // create cookie with refresh token & Access Cookies
-        return res.cookie('jwtRe', refreshToken, {
-            httpOnly: true, //accessible only via browser
-            sameSite: "none",// cross-site cookie
-            secure: true,//https only,need to change to true later
-            expiresIn: process.env.AUTH_REFRESH_COOKIE_EXPIRY // 48 hours,
+        // const refreshToken = jwt.sign({ _id: user._id}, process.env.AUTH_REFRESH_TOKEN_SECRET, {
+        //     expiresIn: process.env.AUTH_REFRESH_TOKEN_EXPIRY
+        // })
+        // // create cookie with refresh token & Access Cookies
+        // return res.cookie('jwtRe', refreshToken, {
+        //     httpOnly: true, //accessible only via browser
+        //     sameSite: "none",// cross-site cookie
+        //     secure: true,//https only,need to change to true later
+        //     expiresIn: process.env.AUTH_REFRESH_COOKIE_EXPIRY // 48 hours,
 
-        })
-            .cookie('jwtAccess', accesstoken, {
-                httpOnly: true, //accessible only via browser
-                sameSite: "none",// cross-site cookie
-                secure: true,//https only,need to change to true later
-                expiresIn: process.env.AUTH_ACCESS_COOKIES_EXPIRY // 15 minutes
+        // })
+        //     .cookie('jwtAccess', accesstoken, {
+        //         httpOnly: true, //accessible only via browser
+        //         sameSite: "none",// cross-site cookie
+        //         secure: true,//https only,need to change to true later
+        //         expiresIn: process.env.AUTH_ACCESS_COOKIES_EXPIRY // 15 minutes
 
-            }).json({
-                success: true,
-                message: "User Account created",
-                data: { name: user.username, roles: user.roles }
-            })
+        //     }).json({
+        //         success: true,
+        //         message: "User Account created",
+        //         data: { name: user.username, roles: user.roles }
+        //     })
     }
 
     return next(new ApplicationError("Given data is not correct", 400))

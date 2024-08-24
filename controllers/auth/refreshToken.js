@@ -10,16 +10,17 @@ const refresh = async (req, res, next) => {
     const cookies = req.cookies
     // console.log(cookies)
     if (!cookies?.jwtRe) {
-        // return next(new ApplicationError("Unauthorized,No Refresh cookies", 400))
-        return res.clearCookie("jwtRe", {
-            httpOnly: true, //accessible only via browser
-            sameSite: "none",// cross-site cookie
-            secure: true,//https only
-        }).clearCookie("jwtAccess", {
-            httpOnly: true, //accessible only via browser
-            sameSite: "none",// cross-site cookie
-            secure: true,//https onl
-        }).sendStatus(200)
+        return next(new ApplicationError("Unauthorized,No Refresh cookies", 400))
+
+        // return res.clearCookie("jwtRe", {
+        //     httpOnly: true, //accessible only via browser
+        //     sameSite: "none",// cross-site cookie
+        //     secure: true,//https only
+        // }).clearCookie("jwtAccess", {
+        //     httpOnly: true, //accessible only via browser
+        //     sameSite: "none",// cross-site cookie
+        //     secure: true,//https onl
+        // }).sendStatus(200)
 
 
     }
@@ -31,6 +32,16 @@ const refresh = async (req, res, next) => {
         asyncHandler(async (error, decoded) => {
             // console.log(decoded._id)
             if (error) {
+                //   console.log(error)
+                if (error.message === "jwt expired") {
+                    return res.cookie("jwtRe", {
+                        httpOnly: true, //accessible only via browser
+                        sameSite: "none",// cross-site cookie
+                        secure: true,//https only
+                        maxAge: 0
+                    }).status(209)
+
+                }
                 // return res.status(403).json({ success: false, message: error.message })
                 return next(new ApplicationError(error.message, 403))
             }
@@ -49,7 +60,8 @@ const refresh = async (req, res, next) => {
                 httpOnly: true, //accessible only via browser
                 sameSite: "none",// cross-site cookie
                 secure: true,//https only,need to change to true later
-                expiresIn: process.env.AUTH_ACCESS_COOKIES_EXPIRY // 15 min expire time
+                maxAge: 15 * 60 * 1000
+                // expiresIn: process.env.AUTH_ACCESS_COOKIES_EXPIRY // 15 min expire time
             }).status(201).json({ success: true, message: "Access Token Updated" })
 
         })

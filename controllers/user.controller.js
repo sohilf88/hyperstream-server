@@ -7,9 +7,11 @@ const mongoose = require("mongoose");
 async function getAllUsersController(req, res, next) {
   try {
     const allUsers = await usermodel.find(req.query).select("-password -__v").sort({ createAt: -1 });
-    res.status(200).json(allUsers);
+    // const allUsers = await usermodel.find(req.query).select("-password -__v").sort({ createAt: -1 });
+    // console.log(allUsers)
+    return res.status(200).send(allUsers);
   } catch (error) {
-    res.status(400).json(error.message);
+    return res.status(400).json(error.message);
   }
 }
 
@@ -33,7 +35,7 @@ async function getSingleUserController(req, res, next) {
     res.status(200).json({
       success: true,
       message: {
-        id:user._id,
+        id: user._id,
         username: user.username,
         email: user.email,
         roles: user.roles
@@ -61,14 +63,16 @@ const updateLoginUserController = async (req, res, next) => {
     const user = await usermodel.findOne({ _id: req.user._id }).lean();
     // check the id in database
     if (!user) {
-      return res.status(404).json({ error: "No Such user found" });
+      // return res.status(404).json({ error: "No Such user found" });
+      return new ApplicationError("No Such User found", 404)
     }
-    console.log(user)
+    // console.log(user)
     user.username = username
     await user.save()
     res.status(200).json(user)
   } catch (error) {
-    res.status(400).json(error.message);
+    // res.status(400).json(error.message);
+    return new ApplicationError(error.message, 404)
   }
 }
 
@@ -128,7 +132,7 @@ module.exports = {
   getAllUsersController,
   getSingleUserController,
   deleteUserController,
-   
+
   updateLoginUserController
 
 

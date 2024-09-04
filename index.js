@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
-const createHttpError = require("http-errors");
-const cameraRoute = require("./routes/camera.route");
+// const createHttpError = require("http-errors");
+// const cameraRoute = require("./routes/camera.route");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const morgan = require("morgan");

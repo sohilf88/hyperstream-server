@@ -1,4 +1,7 @@
 const router = require("express").Router();
+const express = require("express")
+const multer = require("multer")
+const path = require("path")
 const {
   createCameraController,
   getAllCameraController,
@@ -8,12 +11,32 @@ const {
   getFilteredCameraController
   // deleteAllCameraController,
 } = require("../controllers/camera.controller");
+const { bulkCameraImports } = require("../controllers/camera/bulk-import");
+
 const { verifyJWT, roleRestrict } = require("../middlewares/verifyJwt");
+
+
+
 // middleware
 router.use(verifyJWT)
+
+router.use(express.static(path.resolve(__dirname, "public")))
+// !routes to handle all users related requests
+// router.use("/api/v1/users", userRouter);
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "./public/uploads")
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname)
+
+  }
+})
+
+let upload = multer({ storage: storage })
 // get all cameras
 
-router.get("/",  getAllCameraController);
+router.get("/", getAllCameraController);
 
 router.get("/filtered", getFilteredCameraController);
 
@@ -21,12 +44,15 @@ router.get("/filtered", getFilteredCameraController);
 router.get("/:id", getSingleCameraController)
 
 // add new single camera
-router.post("/",roleRestrict("root", "admin") ,createCameraController);
+router.post("/", roleRestrict("root", "admin"), createCameraController);
+
+// bulk-imports
+router.post("/bulk-import", roleRestrict("root", "admin"), upload.single("file"), bulkCameraImports);
 
 // update single camera
 router.patch("/:id", roleRestrict("root", "admin"), updateCameraController);
 // delete single camera
-router.delete("/:id",roleRestrict("root", "admin"), deleteCameraController);
+router.delete("/:id", roleRestrict("root", "admin"), deleteCameraController);
 // delete all cameras
 // router.delete("/", deleteAllCameraController);
 

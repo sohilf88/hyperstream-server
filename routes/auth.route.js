@@ -32,7 +32,7 @@ router.post("/forgot-password", forgotPassword)
 // // reset password
 // router.get("/reset-password/:token", resetPasswordGet)
 
-router.patch("/reset-password/:token", resetPassword)
+router.post("/reset-password/", resetPassword)
 
 
 

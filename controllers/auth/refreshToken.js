@@ -60,8 +60,8 @@ const refresh = async (req, res, next) => {
                 httpOnly: true, //accessible only via browser
                 sameSite: "none",// cross-site cookie
                 secure: true,//https only,need to change to true later
-                maxAge: 15 * 60 * 1000
-                // expiresIn: process.env.AUTH_ACCESS_COOKIES_EXPIRY // 15 min expire time
+                maxAge: 15 * 60 * 1000 // 15 minutes
+                
             }).status(201).json({ success: true, message: "Access Token Updated" })
 
         })

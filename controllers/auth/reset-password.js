@@ -35,14 +35,15 @@ const { ApplicationError } = require("../../middlewares/errorHandler");
 // })
 
 const resetPassword = asyncHandler(async (req, res, next) => {
-
-    if (!req.params.token) {
-        return next(new ApplicationError("invalid token", 400))
+    console.log(req.body)
+    const { token, password, confirmPassword } = req.body
+    if (!token || !password || !confirmPassword) {
+        return next(new ApplicationError("All Fields are required", 400))
         // return res.status(400).json({ success: false, message: "invalid token" })
     }
     // get user based upon token
 
-    const hashTheToken = crypto.createHash("sha256").update(req.params.token).digest("hex")
+    const hashTheToken = crypto.createHash("sha256").update(token).digest("hex")
     // console.log(hashTheToken)
     const user = await userModel.findOne({
         passwordResetToken: hashTheToken,
@@ -54,8 +55,8 @@ const resetPassword = asyncHandler(async (req, res, next) => {
         // return res.status(400).json({ success: false, message: "invalid token or expired" })
     }
     // update changePasswordAt property
-    user.password = req.body.password
-    user.confirmPassword = req.body.confirmPassword
+    user.password = password
+    user.confirmPassword = confirmPassword
     user.passwordResetToken = undefined
     user.passwordResetExpire = undefined
     await user.save()
@@ -68,8 +69,8 @@ const resetPassword = asyncHandler(async (req, res, next) => {
         httpOnly: true, //accessible only via browser
         sameSite: "none",// cross-site cookie
         secure: true,//https only,need to change to true later
-        expiresIn: process.env.AUTH_ACCESS_COOKIES_EXPIRY // 15 minutes
-    }).status(201).json({ success: true, message: "password changed succesfully" })
+        maxAge: 15 * 60 * 1000 // 15 minutes
+    }).status(201).json({ success: true, message: "Password has been updated" })
 
 })
 

@@ -8,6 +8,7 @@ const userModel = require("../../models/user.model");
 const forgotPassword = asyncHandler(async (req, res, next) => {
     // steps involved
     const { email } = req.body
+    // console.log(email)
     if (!validator.isEmail(email)) return next(new ApplicationError("please enter valid email", 400))
     // 1. get correct email address in post request
     const userDetail = await userModel.findOne({ email })
@@ -20,8 +21,8 @@ const forgotPassword = asyncHandler(async (req, res, next) => {
     await userDetail.save({ validateBeforeSave: false })
 
     // 3. sent id to user's email
-    const resetUrl = `${req.protocol}://${req.get("host")}/api/v1/auth/reset-password/${resetToken}`
-    const message = `Forgot your password ? click on below link to reset it\n ${resetUrl}`
+    const token = `${resetToken}`
+    const message = `Copy below Code \n ${token}`
     try {
         await sendEmail({
             email: userDetail.email,
@@ -30,10 +31,11 @@ const forgotPassword = asyncHandler(async (req, res, next) => {
         })
         res.status(200).json({
             success: true,
-            message: "password reset link sent to your email, please check your inbox"
+            message: "Password Reset Token has been sent.Kindly Check Email"
         })
 
     } catch (error) {
+        // console.log(error)
         userDetail.passwordResetToken = undefined,
             userDetail.passwordResetExpire = undefined,
             await userDetail.save({ validateBeforeSave: false })

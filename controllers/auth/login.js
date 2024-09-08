@@ -49,7 +49,8 @@ const loginController = asyncHandler(async (req, res, next) => {
         httpOnly: true, //accessible only via browser
         sameSite: "none",// cross-site cookie
         secure: true,//https only,need to change to true later
-        maxAge: 60 * 60 * 24 * 1000
+        // maxAge: process.env.AUTH_REFRESH_COOKIE_EXPIRY
+        maxAge: 60 * 50 * 24 * 1000
 
 
 
@@ -59,6 +60,7 @@ const loginController = asyncHandler(async (req, res, next) => {
             httpOnly: true, //accessible only via browser
             sameSite: "none",// cross-site cookie
             secure: true,//https only,need to change to true later
+            // maxAge: process.env.AUTH_ACCESS_COOKIES_EXPIRY
             maxAge: 15 * 60 * 1000 // 15 minutes
             // expiresIn: 10000 // 48 hours,
 

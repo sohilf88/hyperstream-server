@@ -4,9 +4,9 @@ const { ApplicationError } = require("../../middlewares/errorHandler");
 const csv = require("csvtojson")
 const fs = require("fs")
 const bulkCameraImports = asyncHandler(async (req, res, next) => {
-    console.log(req.files)
+    // console.log(req.file)
 
-    if (!req.files) {
+    if (!req.file) {
         return new ApplicationError("File was not Found", 400)
     }
     let bulkCameras = []
@@ -15,8 +15,13 @@ const bulkCameraImports = asyncHandler(async (req, res, next) => {
     try {
         // converting into json
         csv().fromFile(req.file.path).then(async (response) => {
+           
+            // console.log("there")
+            // return res.status(400).json({ success: false, message: "invalid file type" })
             for (let item = 0; item < response.length; item++) {
-                //  pushing into array of camera object
+
+            //     //  pushing into array of camera object
+
                 bulkCameras.push({
                     name: response[item].name,
                     district: response[item].district,
@@ -27,6 +32,7 @@ const bulkCameraImports = asyncHandler(async (req, res, next) => {
                     userId: req.user._id
                 })
             }
+            // if(!bulkCameras.length || bulkCameras.name===undefined) return new ApplicationError("oops,Something went wrong123", 400)
             const bulkImports = await cameraSchemaModel.insertMany(bulkCameras)
             // console.log(bulkImports)
             if (!bulkImports) {

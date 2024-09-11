@@ -25,6 +25,7 @@ router.use(express.static(path.resolve(__dirname, "public")))
 // router.use("/api/v1/users", userRouter);
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
+    // console.log(file)
     cb(null, "./public/uploads")
   },
   filename: (req, file, cb) => {
@@ -34,6 +35,7 @@ const storage = multer.diskStorage({
 })
 
 let upload = multer({ storage: storage })
+
 // get all cameras
 
 router.get("/", getAllCameraController);
@@ -47,7 +49,7 @@ router.get("/:id", getSingleCameraController)
 router.post("/", roleRestrict("root", "admin"), createCameraController);
 
 // bulk-imports
-router.post("/bulk-import", roleRestrict("root", "admin"), upload.single("file"), bulkCameraImports);
+router.post("/bulk-import", upload.single("file"),  bulkCameraImports);
 
 // update single camera
 router.patch("/:id", roleRestrict("root", "admin"), updateCameraController);

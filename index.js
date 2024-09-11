@@ -74,7 +74,7 @@ mongoose.connect(db_url, {
 app.use(ErrorHandler)
   ;
 mongoose.connection.once("open", () => {
-  app.listen(port, function () {
+  app.listen(port,"0.0.0.0", function () {
     console.log(`listening on port ${port}`);
   });
 

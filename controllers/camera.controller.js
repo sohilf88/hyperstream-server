@@ -186,12 +186,14 @@ const deleteCameraController = asyncHandler(async (req, res, next) => {
 
 
 
+
+
 module.exports = {
   createCameraController,
   getAllCameraController,
   updateCameraController,
   deleteCameraController,
   getSingleCameraController,
-
+  
   getFilteredCameraController
 };

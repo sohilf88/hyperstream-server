@@ -8,7 +8,8 @@ const {
   updateCameraController,
   deleteCameraController,
   getSingleCameraController,
-  getFilteredCameraController
+  getFilteredCameraController,
+  deleteMultipleCameraController
   // deleteAllCameraController,
 } = require("../controllers/camera.controller");
 const { bulkCameraImports } = require("../controllers/camera/bulk-import");
@@ -55,7 +56,7 @@ router.post("/bulk-import", upload.single("file"),  bulkCameraImports);
 router.patch("/:id", roleRestrict("root", "admin"), updateCameraController);
 // delete single camera
 router.delete("/:id", roleRestrict("root", "admin"), deleteCameraController);
-// delete all cameras
-// router.delete("/", deleteAllCameraController);
+
+
 
 module.exports = router;

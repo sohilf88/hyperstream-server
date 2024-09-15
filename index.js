@@ -62,12 +62,12 @@ app.all("*", (req, res, next) => {
 const port = process.env.PORT || 5500; //port on server is listening
 // connecting database and then only listening on server on port 5000
 
-const options ={
-  key:'',
-  cert:'' 
+const options = {
+  key: '',
+  cert: ''
 }
 
-const sslserver =https.createServer(options,app)
+const sslserver = https.createServer(options, app)
 const db_url = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@hyperstream.9sbxaff.mongodb.net/?retryWrites=true&w=majority`
 mongoose.connect(db_url, {
   dbName: process.env.DB_NAME,
@@ -81,7 +81,7 @@ mongoose.connect(db_url, {
 app.use(ErrorHandler)
   ;
 mongoose.connection.once("open", () => {
-  sslserver.listen(port,()=>{console.log(`Secure Server is listening on port ${port}`)});
+  sslserver.listen(port, () => { console.log(`Secure Server is listening on port ${port}`) });
   // app.listen(port,"0.0.0.0", function () {
   //   console.log(`listening on port ${port}`);
   // });
@@ -92,3 +92,6 @@ mongoose.connection.on("error", error => {
   console.log(error)
   logEvents(`${error.no}: ${error.code}\t${error.codeName}\t${error.syscall}\t${error.hostname}`, "mongooseErrorLogs.log")
 })
+
+
+module.exports = app

@@ -33,7 +33,7 @@ app.use(helmet())
 app.use(cookieParser())  //cookie parser
 
 
-app.use(cors()) // cors
+app.use(cors(corsOptions)) // cors
 
 app.use(logger)
 

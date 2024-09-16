@@ -48,7 +48,7 @@ const loginController = asyncHandler(async (req, res, next) => {
     return res.cookie('jwtRe', refreshToken, {
         httpOnly: true, //accessible only via browser
         sameSite: "None",// cross-site cookie
-        secure: true,//https only,need to change to true later
+        // secure: true,//https only,need to change to true later
         maxAge: 60 * 60 * 24 * 1000
 
 
@@ -58,7 +58,7 @@ const loginController = asyncHandler(async (req, res, next) => {
         .cookie('jwtAccess', accesstoken, {
             httpOnly: true, //accessible only via browser
             sameSite: "None",// cross-site cookie
-            secure: true,//https only,need to change to true later
+            // secure: true,//https only,need to change to true later
             maxAge: 15 * 60 * 1000 // 15 minutes
             // expiresIn: 10000 // 48 hours,
 

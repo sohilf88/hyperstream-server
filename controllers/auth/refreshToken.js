@@ -59,8 +59,9 @@ const refresh = async (req, res, next) => {
             return res.cookie('jwtAccess', accesstoken, {
                 httpOnly: true, //accessible only via browser
                 sameSite: "None",// cross-site cookie
-                // secure: true,//https only,need to change to true later
-                maxAge: 15 * 60 * 1000
+                secure: true,//https only,need to change to true later
+                maxAge: 15 * 60 * 1000,
+                path:"/",domain:"nextjs14-hyper-stream2024.vercel.app"
                 // expiresIn: process.env.AUTH_ACCESS_COOKIES_EXPIRY // 15 min expire time
             }).status(201).json({ success: true, message: "Access Token Updated" })
 

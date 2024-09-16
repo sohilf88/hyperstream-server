@@ -35,7 +35,7 @@ app.use(cookieParser())  //cookie parser
 
 // app.use(cors(corsOptions)) // cors
 app.use(cors({ 
-  origin: 'https://hyperstream-server.vercel.app/api/v1/', 
+  origin: 'https://hyperstream-server.vercel.app/*', 
   credentials: true})) // cors
 app.use(logger)
 

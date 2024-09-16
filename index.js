@@ -39,7 +39,7 @@ app.use(logger)
 
 app.use(morgan("dev")); // used to see logs on console
 // handle error with below codee
-
+app.set("trust proxy", true)
 // !routes to handle all users related requests
 app.use("/api/v1/users", userRouter);
 

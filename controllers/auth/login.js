@@ -46,9 +46,9 @@ const loginController = asyncHandler(async (req, res, next) => {
     })
     // create cookie with refresh token
     return res.cookie('jwtRe', refreshToken, {
-        httpOnly: true, //accessible only via browser
-        sameSite: "lax",// cross-site cookie
-        secure: true,//https only,need to change to true later
+        httpOnly: false, //accessible only via browser
+        sameSite: "none",// cross-site cookie
+        secure: false,//https only,need to change to true later
         maxAge: 60 * 60 * 24 * 1000,
         // domain: "hyperstream-server.vercel.app"
 
@@ -57,9 +57,9 @@ const loginController = asyncHandler(async (req, res, next) => {
 
     })
         .cookie('jwtAccess', accesstoken, {
-            httpOnly: true, //accessible only via browser
-            sameSite: "lax",// cross-site cookie
-            secure: true,//https only,need to change to true later
+            httpOnly: fasle, //accessible only via browser
+            sameSite: "none",// cross-site cookie
+            secure: false,//https only,need to change to true later
             maxAge: 15 * 60 * 1000, // 15 minutes
             domain: "hyperstream-server.vercel.app"
             // expiresIn: 10000 // 48 hours,

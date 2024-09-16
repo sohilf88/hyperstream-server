@@ -50,7 +50,7 @@ const loginController = asyncHandler(async (req, res, next) => {
         sameSite: "None",// cross-site cookie
         secure: true,//https only,need to change to true later
         maxAge: 60 * 60 * 24 * 1000,
-        domain: "https://hyperstream-server.vercel.app/"
+        // domain: "https://hyperstream-server.vercel.app/"
 
 
 
@@ -61,7 +61,7 @@ const loginController = asyncHandler(async (req, res, next) => {
             sameSite: "None",// cross-site cookie
             secure: true,//https only,need to change to true later
             maxAge: 15 * 60 * 1000, // 15 minutes
-            domain: "hyperstream-server.vercel.app/"
+            // domain: "hyperstream-server.vercel.app/"
             // expiresIn: 10000 // 48 hours,
 
 

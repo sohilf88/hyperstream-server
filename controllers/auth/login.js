@@ -25,7 +25,7 @@ const loginController = asyncHandler(async (req, res, next) => {
     if (!checkUserAccountInDB.isActive) {
         return next(new ApplicationError("Account was disabled", 409))
 
-    }                                               
+    }
 
     //  compare provided password by user with stored db password in hash
     const checkPassword = await bcrypt.compare(password, checkUserAccountInDB.password)
@@ -57,7 +57,7 @@ const loginController = asyncHandler(async (req, res, next) => {
 
     })
         .cookie('jwtAccess', accesstoken, {
-            httpOnly: fasle, //accessible only via browser
+            httpOnly: false, //accessible only via browser
             sameSite: "none",// cross-site cookie
             secure: false,//https only,need to change to true later
             maxAge: 15 * 60 * 1000, // 15 minutes

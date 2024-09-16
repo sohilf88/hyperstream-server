@@ -33,10 +33,8 @@ app.use(helmet())
 app.use(cookieParser())  //cookie parser
 
 
-// app.use(cors(corsOptions)) // cors
-app.use(cors({ 
-  origin: 'https://hyperstream-server.vercel.app/*', 
-  credentials: true})) // cors
+app.use(cors()) // cors
+
 app.use(logger)
 
 app.use(morgan("dev")); // used to see logs on console
@@ -80,7 +78,7 @@ app.use(ErrorHandler)
   ;
 mongoose.connection.once("open", () => {
   // sslserver.listen(port, () => { console.log(`Secure Server is listening on port ${port}`) });
-  app.listen(port,"0.0.0.0", function () {
+  app.listen(port, "0.0.0.0", function () {
     console.log(`listening on port ${port}`);
   });
 

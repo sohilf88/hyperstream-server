@@ -36,7 +36,7 @@ const refresh = async (req, res, next) => {
                 if (error.message === "jwt expired") {
                     return res.cookie("jwtRe", {
                         httpOnly: true, //accessible only via browser
-                        sameSite: "none",// cross-site cookie
+                        sameSite: "None",// cross-site cookie
                         secure: true,//https only
                         maxAge: 0
                     }).status(209)
@@ -58,7 +58,7 @@ const refresh = async (req, res, next) => {
 
             return res.cookie('jwtAccess', accesstoken, {
                 httpOnly: true, //accessible only via browser
-                sameSite: "none",// cross-site cookie
+                sameSite: "None",// cross-site cookie
                 secure: true,//https only,need to change to true later
                 maxAge: 15 * 60 * 1000
                 // expiresIn: process.env.AUTH_ACCESS_COOKIES_EXPIRY // 15 min expire time

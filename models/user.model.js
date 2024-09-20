@@ -10,7 +10,8 @@ const userSchema = new mongoose.Schema(
     },
     isActive: {
       type: Boolean,
-      default: true
+      default: true,
+      // validate: [validator.isBoolean, "invalid value,must be true or false"]
     },
     email: {
       type: String,

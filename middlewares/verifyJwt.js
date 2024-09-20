@@ -64,7 +64,7 @@ const roleRestrict = (...allowedRoles) => {
         if (!allowedRoles.includes(req.user.roles)) {
             // return (new ApplicationError("You do not have Permission to Access Resources", 403))
             // return (new ApplicationError(req.user.roles, 403))
-            return res.status(403).json({ success: false, message: "Authorization denied" })
+            return res.status(403).json({ success: false, message: "UnAuthrorized activity Prohibited" })
         }
 
         return next()

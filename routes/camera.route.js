@@ -9,13 +9,15 @@ const {
   deleteCameraController,
   getSingleCameraController,
   getFilteredCameraController,
-  deleteMultipleCameraController
+
   // deleteAllCameraController,
 } = require("../controllers/camera.controller");
 const { bulkCameraImports } = require("../controllers/camera/bulk-import");
+const disableCamera = require("../controllers/camera/disableCamera")
+const { deleteManyCamera } = require("./../controllers/camera/deleteManyCamera")
 
 const { verifyJWT, roleRestrict } = require("../middlewares/verifyJwt");
-const  { deleteCameraById}  = require("../controllers/camera/disableCamera");
+
 
 
 
@@ -52,13 +54,15 @@ router.get("/:id", getSingleCameraController)
 router.post("/", roleRestrict("root", "admin"), createCameraController);
 
 // bulk-imports
-router.post("/bulk-import", upload.single("file"),  bulkCameraImports);
+router.post("/bulk-import",roleRestrict("admin"), upload.single("file"), bulkCameraImports);
 
-router.patch("/disable/:id", roleRestrict("root", "admin"), deleteCameraById);
+router.patch("/disable/:id", roleRestrict("root", "admin"), disableCamera);
 // update single camera
 router.patch("/:id", roleRestrict("root", "admin"), updateCameraController);
 
 // delete single camera
+router.delete("/deletemany", roleRestrict("admin"), deleteManyCamera);
+
 router.delete("/:id", roleRestrict("root", "admin"), deleteCameraController);
 
 

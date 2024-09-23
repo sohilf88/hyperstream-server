@@ -16,7 +16,9 @@ const nosqlSanitizer = require("express-mongo-sanitize")
 const xssProtect = require("xss-clean")
 const adminRouter = require("./routes/admin/admin.route")
 const userRouter = require("./routes/users.route")
-const http = require("http")
+const webHookRouter = require("./routes/webhookRoutes/webhookRoute")
+const http = require("http");
+
 // middlewares
 
 app.use(express.json());
@@ -39,8 +41,12 @@ app.use(logger)
 app.use(morgan("dev")); // used to see logs on console
 // handle error with below codee
 
+// webhook route
+app.use("/api/v1/webhook", webHookRouter);
+
 // !routes to handle all users related requests
 app.use("/api/v1/users", userRouter);
+
 
 
 
@@ -77,8 +83,8 @@ app.use(ErrorHandler)
 const server = http.createServer(app)
 
 mongoose.connection.once("open", () => {
-  server.listen(process.env.PORT,"0.0.0.0", () => {
-    console.log("server listeing on port "+process.env.PORT)
+  server.listen(process.env.PORT, "0.0.0.0", () => {
+    console.log("server listeing on port " + process.env.PORT)
   })
   // sslserver.listen(port, () => { console.log(`Secure Server is listening on port ${port}`) });
   // app.listen(port,"0.0.0.0", function () {

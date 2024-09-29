@@ -5,19 +5,20 @@ const asyncHandler = require("express-async-handler")
 
 // get all cameras
 const getAllCameraController = asyncHandler(async (req, res, next) => {
+  
   let queryObj = {
     userId: req.user._id,
 
   }
-  
+
   const { isActive } = req.query
-  console.log()
+ 
   // check if isActive boolean, else ignore
-  if (isActive==="false"  || isActive==="true") {
+  if (isActive === "false" || isActive === "true") {
     queryObj.isActive = isActive
   }
   // check if camera is enable or disabled
-//  console.log(queryObj)
+  //  console.log(queryObj)
 
   const allCameras = await cameraSchemaModel.find(queryObj).select("-__v").lean();
 

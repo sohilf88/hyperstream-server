@@ -1,10 +1,10 @@
 require("dotenv").config();
 const express = require("express");
-// const createHttpError = require("http-errors");
-// const cameraRoute = require("./routes/camera.route");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
+const http = require("http");
+const { Server } = require('socket.io');
 const app = express();
 const bodyParser = require('body-parser');
 const { logger, logEvents } = require("./middlewares/logger");
@@ -15,11 +15,31 @@ const helmet = require("helmet");
 const nosqlSanitizer = require("express-mongo-sanitize")
 const xssProtect = require("xss-clean")
 const adminRouter = require("./routes/admin/admin.route")
-const userRouter = require("./routes/users.route")
-const webHookRouter = require("./routes/webhookRoutes/webhookRoute")
-const http = require("http");
+const userRouter = require("./routes/users.route");
+const allowedOrigins = require("./config/allowedOrigins");
+
+// create http server and server io
+const server = http.createServer(app)
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    credentials: true
+  }
+});
+
+
 
 // middlewares
+app.use((req, res, next) => {
+  req.io = io
+  next()
+})
+// socket config
+io.on("connection", (socket) => {
+  socket.emit("web", "welcome to hyperstream socket connection")
+})
+
+
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -42,7 +62,7 @@ app.use(morgan("dev")); // used to see logs on console
 // handle error with below codee
 
 // webhook route
-app.use("/api/v1/webhook", webHookRouter);
+
 
 // !routes to handle all users related requests
 app.use("/api/v1/users", userRouter);
@@ -80,16 +100,13 @@ mongoose.connect(db_url, {
   .catch((error) => console.log(error.message));
 
 app.use(ErrorHandler)
-const server = http.createServer(app)
+
 
 mongoose.connection.once("open", () => {
   server.listen(process.env.PORT, "0.0.0.0", () => {
     console.log("server listeing on port " + process.env.PORT)
   })
-  // sslserver.listen(port, () => { console.log(`Secure Server is listening on port ${port}`) });
-  // app.listen(port,"0.0.0.0", function () {
-  //   console.log(`listening on port ${port}`);
-  // });
+
 
 })
 
@@ -98,5 +115,3 @@ mongoose.connection.on("error", error => {
   logEvents(`${error.no}: ${error.code}\t${error.codeName}\t${error.syscall}\t${error.hostname}`, "mongooseErrorLogs.log")
 })
 
-
-module.exports = app

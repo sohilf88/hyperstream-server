@@ -22,7 +22,7 @@ const allowedOrigins = require("./config/allowedOrigins");
 const server = http.createServer(app)
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: allowedOrigins,
     credentials: true
   }
 });
@@ -36,7 +36,8 @@ app.use((req, res, next) => {
 })
 // socket config
 io.on("connection", (socket) => {
-  socket.emit("web", "welcome to hyperstream socket connection")
+  
+  socket.emit("web", "welcome to hyperstream socket connection "+socket.id + " ")
 })
 
 

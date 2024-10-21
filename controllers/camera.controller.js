@@ -5,14 +5,20 @@ const asyncHandler = require("express-async-handler")
 
 // get all cameras
 const getAllCameraController = asyncHandler(async (req, res, next) => {
-  
+  // const { io } = req
   let queryObj = {
     userId: req.user._id,
 
   }
-
+  // io.on("connection", (socket) => {
+  //   socket.on("publish", (data) => {
+  //     console.log(data)
+  //   })
+  //   socket.emit("web", "hello rther"
+  //   )
+  // })
   const { isActive } = req.query
- 
+
   // check if isActive boolean, else ignore
   if (isActive === "false" || isActive === "true") {
     queryObj.isActive = isActive
@@ -21,7 +27,7 @@ const getAllCameraController = asyncHandler(async (req, res, next) => {
   //  console.log(queryObj)
 
   const allCameras = await cameraSchemaModel.find(queryObj).select("-__v").lean();
-
+  // io.emit("cameras", allCameras)
   return res.status(200).json({
     success: true,
     total: allCameras.length,
@@ -100,7 +106,7 @@ const getFilteredCameraController = asyncHandler(async (req, res, next) => {
 const createCameraController = asyncHandler(async (req, res, next) => {
   const { name, district, taluka, city, area, url, isActive } = req.body
   const userId = req.user._id
-  console.log(userId)
+  // console.log(userId)
 
 
 

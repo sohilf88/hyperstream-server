@@ -1,9 +1,10 @@
 const allowedOrigins = [
-    "http://localhost:3000",
-    "https://nextjs14-hyper-stream2024.vercel.app",
-    "https://nextjs14-hyper-stream2024.vercel.app/auth/login",
-    "https://www/hyperstream.com",
-    "https://hyperstream.com"
+    "https://www.hyperstream.in",
+    "https://api.hyperstream.in",
+    "https://hyperstream.in",
+    "http://hyperstream.in"
+
+
 ]
 
 module.exports = allowedOrigins

@@ -17,7 +17,7 @@ const loginController = asyncHandler(async (req, res, next) => {
     }
     // check user in db with email and add password to compare
     const checkUserAccountInDB = await userModel.findOne({ email }).select("+password");
-    console.log(checkUserAccountInDB)
+    // console.log(checkUserAccountInDB)
     if (!checkUserAccountInDB) {
         return next(new ApplicationError("Account was not found", 400))
 

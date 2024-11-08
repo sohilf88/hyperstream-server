@@ -20,7 +20,7 @@ async function getAllUsersController(req, res, next) {
 async function getSingleUserController(req, res, next) {
   // console.log(req.id)
   const { id } = req.params;
-  console.log(id)
+  // console.log(id)
 
   try {
     // check the id if it is valid mongodb object id

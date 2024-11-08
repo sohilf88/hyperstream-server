@@ -149,7 +149,7 @@ const getSingleCameraController = asyncHandler(async (req, res, next) => {
 // update user
 
 const updateCameraController = asyncHandler(async (req, res, next) => {
-  console.log(req.body)
+  // console.log(req.body)
   const { name, district, taluka, city, area, url, isActive } = req.body
   if (!name || !district || !taluka || !city || !area || !url) {
     return next(new ApplicationError("All fields must required", 400))

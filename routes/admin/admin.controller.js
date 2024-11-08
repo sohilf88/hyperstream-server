@@ -75,7 +75,7 @@ async function updateUserControllerByAdmin(req, res, next) {
 
         return res.status(200).json(user);
     } catch (error) {
-        console.log(error.message)
+        // console.log(error.message)
         res.status(400).json(error.message);
     }
 }
@@ -100,7 +100,7 @@ async function resetUserPasswordByAdmin(req, res, next) {
 
         const user = await userModel.findByIdAndUpdate(id, { password: hashPassword, confirmPassword: undefined }, { new: true, runValidators: true });
         // check the id in database
-        console.log(user)
+        // console.log(user)
         if (!user) {
             return next(new ApplicationError("No such User Found", 404))
         }
@@ -112,7 +112,7 @@ async function resetUserPasswordByAdmin(req, res, next) {
             message: "Password has been updated"
         });
     } catch (error) {
-        console.log(error.message)
+        // console.log(error.message)
         // res.status(400).json(error.message);
         return next(new ApplicationError(error.message, 400))
     }
@@ -174,7 +174,7 @@ async function deleteUserByAdmin(req, res, next) {
             return res.status(404).json({ error: "invalid user id" });
         }
         const attachedCamera = await cameraSchemaModel.find({ userId: id }).lean()
-        console.log(attachedCamera?.length)
+        // console.log(attachedCamera?.length)
         if (attachedCamera?.length) {
             return res.status(400).json({ success: false, message: `There are ${attachedCamera?.length} cameras left, please delete it before user deletion. click on "Cameras" to check further` })
 

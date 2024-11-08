@@ -11,7 +11,7 @@ const updateUserProfile = asyncHandler(async (req, res, next) => {
     const { id } = req;
 
     const { username, email, password, confirmPassword } = req.body
-    console.log(username)
+    // console.log(username)
     let updateUsername = username.replace(/[\s~`!@#$%^&*(){}\[\];:"'<,.>?\/\\|_+=-]/g, '');
     if (updateUsername.length < 3 || updateUsername.length >= 20) {
         return res.status(400).json({ success: false, message: "Username must be string not more than 20 Charecter or blank" })
@@ -19,7 +19,7 @@ const updateUserProfile = asyncHandler(async (req, res, next) => {
     if (password || confirmPassword) {
         return next(new ApplicationError("This Route is not for password Change", 403))
     }
-    console.log(updateUsername)
+    // console.log(updateUsername)
 
 
     // check the id if it is valid mongodb object id

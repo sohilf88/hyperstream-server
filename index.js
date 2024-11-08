@@ -1,10 +1,10 @@
 require("dotenv").config();
 const express = require("express");
-// const createHttpError = require("http-errors");
-// const cameraRoute = require("./routes/camera.route");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
+const http = require("http");
+const { Server } = require('socket.io');
 const app = express();
 const bodyParser = require('body-parser');
 const { logger, logEvents } = require("./middlewares/logger");
@@ -15,8 +15,32 @@ const helmet = require("helmet");
 const nosqlSanitizer = require("express-mongo-sanitize")
 const xssProtect = require("xss-clean")
 const adminRouter = require("./routes/admin/admin.route")
-const userRouter = require("./routes/users.route")
+const userRouter = require("./routes/users.route");
+const allowedOrigins = require("./config/allowedOrigins");
+
+// create http server and server io
+const server = http.createServer(app)
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true
+  }
+});
+
+
+
 // middlewares
+app.use((req, res, next) => {
+  req.io = io
+  next()
+})
+// socket config
+io.on("connection", (socket) => {
+  
+  socket.emit("web", "welcome to hyperstream socket connection "+socket.id + " ")
+})
+
+
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -38,8 +62,12 @@ app.use(logger)
 app.use(morgan("dev")); // used to see logs on console
 // handle error with below codee
 
+// webhook route
+
+
 // !routes to handle all users related requests
 app.use("/api/v1/users", userRouter);
+
 
 
 
@@ -61,6 +89,7 @@ const port = process.env.PORT || 5500; //port on server is listening
 // connecting database and then only listening on server on port 5000
 
 
+
 const db_url = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@hyperstream.9sbxaff.mongodb.net/?retryWrites=true&w=majority`
 mongoose.connect(db_url, {
   dbName: process.env.DB_NAME,
@@ -72,11 +101,13 @@ mongoose.connect(db_url, {
   .catch((error) => console.log(error.message));
 
 app.use(ErrorHandler)
-  ;
+
+
 mongoose.connection.once("open", () => {
-  app.listen(port,"0.0.0.0" ,function () {
-    console.log(`listening on port ${port}`);
-  });
+  server.listen(process.env.PORT, "0.0.0.0", () => {
+    console.log("server listeing on port " + process.env.PORT)
+  })
+
 
 })
 
@@ -84,3 +115,4 @@ mongoose.connection.on("error", error => {
   console.log(error)
   logEvents(`${error.no}: ${error.code}\t${error.codeName}\t${error.syscall}\t${error.hostname}`, "mongooseErrorLogs.log")
 })
+

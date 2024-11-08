@@ -30,7 +30,7 @@ const verifyJWT = async (req, res, next) => {
             // verify if user present
             const checkUser = await userModel.findOne({ email: req.email })
 
-            if (!checkUser || !checkUser.isActive) return new ApplicationError("User Not Found",403)
+            if (!checkUser || !checkUser.isActive) return new ApplicationError("User Not Found", 403)
             // verify if password changed after token issued
             if (checkUser.checkPasswordAfterTokenAssigned(decoded.iat)) {
                 res.clearCookie("jwtRe", {
@@ -64,7 +64,7 @@ const roleRestrict = (...allowedRoles) => {
         if (!allowedRoles.includes(req.user.roles)) {
             // return (new ApplicationError("You do not have Permission to Access Resources", 403))
             // return (new ApplicationError(req.user.roles, 403))
-            return res.status(401).json({ success: false, message: "Not Allowed" })
+            return res.status(403).json({ success: false, message: "UnAuthrorized activity Prohibited" })
         }
 
         return next()

@@ -1,4 +1,5 @@
 const asyncHandler = require("express-async-handler")
+const { ApplicationError } = require("../../middlewares/errorHandler")
 
 const logoutController = asyncHandler(async (req, res, next) => {
     const cookies = req.cookies

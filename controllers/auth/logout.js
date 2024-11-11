@@ -12,12 +12,14 @@ const logoutController = asyncHandler(async (req, res, next) => {
         httpOnly: true, //accessible only via browser
         sameSite: "none",// cross-site cookie
         secure: true,//https only
+        domain: 'hypsertream.in',
     }).clearCookie("jwtAccess", {
         httpOnly: true, //accessible only via browser
         sameSite: "none",// cross-site cookie
         secure: true,//https onl
+        domain: 'hypsertream.in',
     }).sendStatus(200)
 
 })
 
-module.exports={logoutController}
+module.exports = { logoutController }

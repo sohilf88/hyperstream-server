@@ -37,6 +37,7 @@ const verifyJWT = async (req, res, next) => {
                     httpOnly: true, //accessible only via browser
                     sameSite: "none",// cross-site cookie
                     secure: true,//https only
+                    domain:'hyperstream.in'
                 })
                 // return res.status(403).json({ sucess: false, message: "User recently changed password, Login again" })
                 return (new ApplicationError("User recently changed password, Login again", 403))

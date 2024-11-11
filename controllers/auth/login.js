@@ -47,7 +47,7 @@ const loginController = asyncHandler(async (req, res, next) => {
     // create cookie with refresh token
     return res.cookie('jwtRe', refreshToken, {
         httpOnly: true, //accessible only via browser
-        domain:"localhost",
+        domain:"hypsertream.in",
         sameSite: "None",// cross-site cookie
         secure: true,//https only,need to change to true later
         // maxAge: process.env.AUTH_REFRESH_COOKIE_EXPIRY
@@ -59,7 +59,7 @@ const loginController = asyncHandler(async (req, res, next) => {
     })
         .cookie('jwtAccess', accesstoken, {
             httpOnly: true, //accessible only via browser
-             domain:"localhost",
+             domain:"hypsertream.in",
             sameSite: "None",// cross-site cookie
             secure: true,//https only,need to change to true later
             // maxAge: process.env.AUTH_ACCESS_COOKIES_EXPIRY

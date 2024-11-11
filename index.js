@@ -5,8 +5,8 @@ const mongoose = require("mongoose");
 const morgan = require("morgan");
 const http = require("http");
 const { Server } = require('socket.io');
-const cluster = require('cluster');
-const os = require('os');
+// const cluster = require('cluster');
+// const os = require('os');
 const app = express();
 const bodyParser = require('body-parser');
 const { logger, logEvents } = require("./middlewares/logger");
@@ -110,20 +110,8 @@ mongoose.connect(db_url, {
 
 app.use(ErrorHandler)
 
-// cluster configuration
-const numCPUs = os.cpus().length;
-if (cluster.isMaster) {
-  console.log(`Master process ${process.pid} is running`);
 
-  for (let i = 0; i < numCPUs; i++) {
-    cluster.fork();
-  }
 
-  cluster.on('exit', (worker, code, signal) => {
-    console.log(`Worker process ${worker.process.pid} died. Restarting...`);
-    cluster.fork();
-  });
-} else {
   mongoose.connection.once("open", () => {
     server.listen(process.env.PORT, process.pid,  () => {
       console.log("server listeing on port " +"pid-" +process.pid +" "+ process.env.PORT)
@@ -137,5 +125,5 @@ if (cluster.isMaster) {
     logEvents(`${error.no}: ${error.code}\t${error.codeName}\t${error.syscall}\t${error.hostname}`, "mongooseErrorLogs.log")
   })
   
-}
+
 

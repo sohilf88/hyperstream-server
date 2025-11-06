@@ -87,6 +87,7 @@ app.use("/api/v1/auth", require("./routes/auth.route")); ///api/v1/auth/profile,
 // !routes to handle all camera/data add/remove/update requests
 app.use("/api/v1/camera", require("./routes/camera.route"));
 
+app.use("/api/v1/webhook",require("./routes/webhook"))
 
 app.all("*", (req, res, next) => {
 

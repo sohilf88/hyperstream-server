@@ -10,20 +10,20 @@ const refresh = async (req, res, next) => {
     const cookies = req.cookies
     // console.log(cookies)
     if (!cookies?.jwtRe) {
-        return next(new ApplicationError("Unauthorized,No Refresh cookies", 400))
+        // return next(new ApplicationError("Unauthorized,No Refresh cookies", 400))
 
-        // return res.clearCookie("jwtRe", {
-        //     httpOnly: true, //accessible only via browser
-        //     sameSite: "none",// cross-site cookie
-        //     secure: true,//https only
-        // }).clearCookie("jwtAccess", {
-        //     httpOnly: true, //accessible only via browser
-        //     sameSite: "none",// cross-site cookie
-        //     secure: true,//https onl
-        // }).sendStatus(200)
-
+        return res.clearCookie("jwtRe", {
+            httpOnly: true, //accessible only via browser
+            sameSite: "none",// cross-site cookie
+            secure: true,//https only
+        }).clearCookie("jwtAccess", {
+            httpOnly: true, //accessible only via browser
+            sameSite: "none",// cross-site cookie
+            secure: true,//https onl
+        }).sendStatus(200)
 
     }
+    
     const refreshToken = cookies.jwtRe
     // console.log(refreshToken)
     jwt.verify(
@@ -38,7 +38,9 @@ const refresh = async (req, res, next) => {
                         httpOnly: true, //accessible only via browser
                         sameSite: "none",// cross-site cookie
                         secure: true,//https only
-                        maxAge: 0
+                        maxAge: 0,
+                         // domain need to add during prod
+                        // domain:"hypsertream.in",
                     }).status(209)
 
                 }
@@ -61,7 +63,7 @@ const refresh = async (req, res, next) => {
                 sameSite: "none",// cross-site cookie
                 secure: true,//https only,need to change to true later
                 maxAge: 15 * 60 * 1000, // 15 minutes
-                domain:"hyperstream.in"
+                // domain:"hyperstream.in"
                 
             }).status(201).json({ success: true, message: "Access Token Updated" })
 

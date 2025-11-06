@@ -69,7 +69,8 @@ const resetPassword = asyncHandler(async (req, res, next) => {
         httpOnly: true, //accessible only via browser
         sameSite: "none",// cross-site cookie
         secure: true,//https only,need to change to true later
-        maxAge: 15 * 60 * 1000 // 15 minutes
+        maxAge: 15 * 60 * 1000, // 15 minutes,
+        domain:"hypsertream.in",
     }).status(201).json({ success: true, message: "Password has been updated" })
 
 })

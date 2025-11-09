@@ -7,11 +7,11 @@ const Camera = require("../../models/camera.model");
 const webhookController = async (req, res, next) => {
     try {
     const event = req.body;
-
+     console.log(event)
     if (event["detail-type"] === "IVS Stream State Change") {
       const { event_name, stream_id, channel_name } = event.detail;
       const channelArn = event.resources[0]; // ARN comes in the array
-
+      
       // 🔍 Find the matching camera by ARN
       const camera = await Camera.findOne({ channelArn });
 

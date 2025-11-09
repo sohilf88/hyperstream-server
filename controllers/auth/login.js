@@ -72,7 +72,7 @@ const loginController = asyncHandler(async (req, res, next) => {
         },).json({
             success: true,
             message: "Login Success",
-            data: { name: checkUserAccountInDB.username, roles: checkUserAccountInDB.roles }
+            data: { name: checkUserAccountInDB.username, roles: checkUserAccountInDB.roles,id:checkUserAccountInDB._id }
         })
 }
 

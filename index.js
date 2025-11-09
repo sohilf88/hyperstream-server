@@ -44,7 +44,7 @@ app.use((req, res, next) => {
 })
 // socket config
 io.on("connection", (socket) => {
-  
+  console.log(socket.id)
   socket.emit("web", "welcome to hyperstream socket connection "+socket.id + " ")
 })
 
@@ -114,8 +114,8 @@ app.use(ErrorHandler)
 
 
   mongoose.connection.once("open", () => {
-    server.listen(process.env.PORT, process.pid,  () => {
-      console.log("server listeing on port " +"pid-" +process.pid +" "+ process.env.PORT)
+    server.listen(process.env.PORT, "0.0.0.0",process.pid,  () => {
+      console.log("server listeing on port " +"pid-" +process.pid +" "+ process.env.PORT,)
     })
   
   

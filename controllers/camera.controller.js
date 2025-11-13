@@ -22,8 +22,10 @@ const getAllCameraController = asyncHandler(async (req, res, next) => {
 
   const allCameras = await cameraSchemaModel.find(queryObj).select("-__v").lean();
   // io.emit("cameras", allCameras)
-  req.io.emit(queryObj.userId,allCameras)
-  console.log(allCameras)
+  // req.io.emit(queryObj.userId,allCameras)
+  const userId="sohil"
+  req.io.to(userId).emit("cameraUpdate", allCameras);
+  // console.log(allCameras)
   return res.status(200).json({
     success: true,
     total: allCameras.length,

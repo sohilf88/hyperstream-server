@@ -1,65 +1,118 @@
-// const { ApplicationError } = require("../middlewares/errorHandler");
 
 const asyncHandler = require("express-async-handler");
 const Camera = require("../../models/camera.model");
+const { ApplicationError } = require("../../middlewares/errorHandler");
 
+const webhookController = asyncHandler(async (req, res, next) => {
+  const event = req.body;
+  const { id, timestamp, action } = event;
 
-const webhookController = async (req, res, next) => {
-    try {
-    const event = req.body;
-     console.log(event)
-    if (event["detail-type"] === "IVS Stream State Change") {
-      const { event_name, stream_id, channel_name } = event.detail;
-      const channelArn = event.resources[0]; // ARN comes in the array
-      
-      // 🔍 Find the matching camera by ARN
-      const camera = await Camera.findOne({ channelArn });
-
-      if (camera) {
-        // Update camera stream status
-        camera.lastStreamId = stream_id;
-        camera.streamStatus = event_name === "Stream Start" ? "live" : "offline";
-        await camera.save();
-
-        // 🔔 Notify frontend via Socket.IO
-        req.io.emit("camera-status-update", {
-          cameraId: camera._id,
-          name: camera.name,
-          status: camera.streamStatus,
-          userId: camera.userId,
-        });
-
-        console.log(`✅ Updated ${camera.name} → ${camera.streamStatus}`);
-      } else {
-        console.warn(`⚠️ No camera found for ARN: ${channelArn}`);
-      }
-    }
-
-    res.status(200).send("OK");
-  } catch (err) {
-    console.error("❌ Error processing event:", err);
-    res.status(500).send("Internal Server Error");
+  const camera = await Camera.findOne({ streamId: id });
+  console.log(camera)
+  if (!camera) {
+    return next(new ApplicationError(`stream id ${id} not found`, 404));
   }
-};
-  // const { io } = req
-//   input will get like this
-// {
-//   "version": "0",
-//   "id": "3db8494b-fe49-15ed-5a47-e20501bf4911",
-//   "detail-type": "IVS Stream State Change",
-//   "source": "aws.ivs",
-//   "account": "565393033359",
-//   "time": "2025-11-03T06:04:21Z",
-//   "region": "ap-south-1",
-//   "resources": [
-//     "arn:aws:ivs:ap-south-1:565393033359:channel/IwuyTv0XAc8u"
-//   ],
-//   "detail": {
-//     "event_name": "Stream End",
-//     "channel_name": "stream-1",
-//     "stream_id": "st-1EayOoSXyIVUvuDKn6ZXDDT"
+
+  const time = new Date(Number(timestamp));
+
+  if (action === "liveStreamStarted") {
+    camera.isLive = true;
+    camera.streamStart = time;
+  } else if (action === "liveStreamEnded") {
+    camera.isLive = false;
+    camera.streamEnd = time;
+  } else {
+    return res.status(200).json({ status: true, message: "ignored event" });
+  }
+
+  await camera.save();
+
+  // (Optional) notify frontend
+  req.io?.to(camera.userId.toString()).emit("cameraUpdate", camera);
+
+  return res.status(200).json({ status: true, message: "received" });
+});
+
+// const webhookController =asyncHandler( async (req, res, next) => {
+// // console.log(req.currentUser)  
+//   const event = req.body;
+//   // console.log(new Date(Number(event.timestamp)).toLocaleString("en-IN"))
+//   console.log(event)
+//   const{ id,timestamp,action}=event
+//   const CameraByStreamId= await Camera.findOne({streamId:id})
+//   // console.log(CameraByStreamId)
+//   if(!CameraByStreamId){
+//     return (new ApplicationError(`stream id ${id} not found`, 404))
 //   }
-// }
+//   if(action=="liveStreamStarted"){
+//     const updateStreamStatus=await Camera.findOneAndUpdate({streamId:id},{isLive:true},{streamStart:new Date(Number(timestamp)).toLocaleString("en-IN")},{ new: true })
+//     console.log(updateStreamStatus.isLive)
+//    return res.status(200).json({status:true,message:"received"})
+//   }
+//   if(action=="liveStreamEnded"){
+//     const updateStreamStatus=await Camera.findOneAndUpdate({streamId:id},{isLive:false},{streamEnd:new Date(Number(timestamp)).toLocaleString("en-IN")},{ new: true })
+//      console.log(updateStreamStatus.isLive)
+//     return res.status(200).json({status:true,message:"received"})
+//   }
+  
+ 
+
+//   req.io.to("sohil").emit("cameraUpdate", event);  
+// //   req.io.emit(req.userId,event)  
+// // if(action=="liveStreamEnded"){
+// //     console.log("stream down for id "+id)
+// //     const camera = await Camera.findOneAndUpdate(
+// //     { streamId: id },
+// //     { isActive:true },
+// //     // { ...req.body },
+// //     { new: true }
+    
+// //   );
+// //   if(!camera){
+// //     return (new ApplicationError("wrong Stream id", 400))
+// //   }
+// //   return {
+// //     success:true,
+// //     message:camera
+// //   }
+// //   }
+// //   // }
+// //   // webhook input recieved
+// // // //  {
+// // //   app: 'LiveApp',
+// // //   action: 'liveStreamStarted',
+// // //   id: 'stream-100',
+// // //   streamName: 'stream-100',
+// // //   timestamp: '1762744526886'
+// // // }
+// // // POST /api/v1/webhook 200 5.776 ms - 2
+// // // {
+// // //   app: 'LiveApp',
+// // //   action: 'liveStreamEnded',
+// // //   id: 'stream-100',
+// // //   streamName: 'stream-100',
+// // //   timestamp: '1762744541892'
+// // // }
+// // if(action=="liveStreamStarted"){
+// //     console.log("stream down for id "+id)
+// //     const camera = await Camera.findOneAndUpdate(
+// //     { streamId: id },
+// //     { isActive:true },
+// //     // { ...req.body },
+// //     { new: true }
+    
+// //   );
+// //   if(!camera){
+// //     return (new ApplicationError("wrong Stream id", 400))
+// //   }
+// //   return {
+// //     success:true,
+// //     message:camera
+// //   }
+// //   }
+// });
+
+
 
 
   module.exports=webhookController

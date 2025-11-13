@@ -9,15 +9,15 @@ const logoutController = asyncHandler(async (req, res, next) => {
     }
 
     return res.clearCookie("jwtRe", {
-        httpOnly: true, //accessible only via browser
-        sameSite: "none",// cross-site cookie
-        secure: true,//https only
-        domain: 'hypsertream.in',
+         httpOnly: true,
+        domain: process.env.ENV === "prod" ? ".hyperstream.in" : "localhost",
+        sameSite: process.env.ENV === "prod" ? "None" : "Lax",
+        secure: process.env.ENV === "prod" ? true : false,
     }).clearCookie("jwtAccess", {
-        httpOnly: true, //accessible only via browser
-        sameSite: "none",// cross-site cookie
-        secure: true,//https onl
-        domain: 'hypsertream.in',
+        httpOnly: true,
+        domain: process.env.ENV === "prod" ? ".hyperstream.in" : "localhost",
+        sameSite: process.env.ENV === "prod" ? "None" : "Lax",
+        secure: process.env.ENV === "prod" ? true : false,
     }).sendStatus(200)
 
 })

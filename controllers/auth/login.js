@@ -9,6 +9,7 @@ const userModel = require("../../models/user.model");
 // /api/v1/auth/login
 const loginController = asyncHandler(async (req, res, next) => {
     const { email, password } = req.body;
+    console.log(process.env.ENV)
     // console.log(req.body)
     // check all fields
     if (!email || !password) {
@@ -45,38 +46,64 @@ const loginController = asyncHandler(async (req, res, next) => {
         expiresIn: process.env.AUTH_REFRESH_TOKEN_EXPIRY
     })
     // create cookie with refresh token
-    return res.cookie('jwtRe', refreshToken, {
-        httpOnly: true, //accessible only via browser
-         // domain need to add during prod
-        // domain:"hypsertream.in",
-        sameSite: "None",// cross-site cookie
-        secure: true,//https only,need to change to true later
-        // maxAge: process.env.AUTH_REFRESH_COOKIE_EXPIRY
-        maxAge: 60 * 50 * 24 * 1000
+    // req.currentUser=checkUserAccountInDB
+    // console.log(req.currentUser)
+//     return res.cookie('jwtRe', refreshToken, {
+//         httpOnly: true, //accessible only via browser
+//          // domain need to add during prod
+//         domain: process.env.ENV =="prod"? "hyperstream.in":"localhost:3000",
+//         sameSite: "None",// cross-site cookie
+//         secure: true,//https only,need to change to true later
+//         // maxAge: process.env.AUTH_REFRESH_COOKIE_EXPIRY
+//         maxAge: 60 * 50 * 24 * 1000
 
 
 
 
-    })
-        .cookie('jwtAccess', accesstoken, {
-            httpOnly: true, //accessible only via browser
-            // domain need to add during prod
-            //  domain:"hypsertream.in",
-            sameSite: "None",// cross-site cookie
-            secure: true,//https only,need to change to true later
-            // maxAge: process.env.AUTH_ACCESS_COOKIES_EXPIRY
-            maxAge: 1 * 60 * 1000 // 15 minutes
-            // expiresIn: 10000 // 48 hours,
+//     })
+//         .cookie('jwtAccess', accesstoken, {
+//             httpOnly: true, //accessible only via browser
+//             // domain need to add during prod
+//              domain: process.env.ENV =="prod"? "hyperstream.in":"localhost:3000",
+//             sameSite: "None",// cross-site cookie
+//             secure: true,//https only,need to change to true later
+//             // maxAge: process.env.AUTH_ACCESS_COOKIES_EXPIRY
+//             maxAge: 1 * 60 * 1000 // 15 minutes
+//             // expiresIn: 10000 // 48 hours,
 
 
-        },).json({
-            success: true,
-            message: "Login Success",
-            data: { name: checkUserAccountInDB.username, roles: checkUserAccountInDB.roles,id:checkUserAccountInDB._id }
-        })
+//         },).json({
+//             success: true,
+//             message: "Login Success",
+//             data: { name: checkUserAccountInDB.username, roles: checkUserAccountInDB.roles,id:checkUserAccountInDB._id }
+//         })
+// }
+return res
+  .cookie("jwtRe", refreshToken, {
+    httpOnly: true,
+    domain: process.env.ENV === "prod" ? ".hyperstream.in" : "localhost",
+    sameSite: process.env.ENV === "prod" ? "None" : "Lax",
+    secure: process.env.ENV === "prod" ? true : false,
+    maxAge: 60 * 60 * 24 * 1000, // 1 day
+  })
+  .cookie("jwtAccess", accesstoken, {
+    httpOnly: true,
+    domain: process.env.ENV === "prod" ? ".hyperstream.in" : "localhost",
+    sameSite: process.env.ENV === "prod" ? "None" : "Lax",
+    secure: process.env.ENV === "prod" ? true : false,
+    maxAge: 15 * 60 * 1000, // 15 minutes
+  })
+  .json({
+    success: true,
+    message: "Login Success",
+    data: {
+      name: checkUserAccountInDB.username,
+      roles: checkUserAccountInDB.roles,
+      id: checkUserAccountInDB._id,
+    },
+  });
+
 }
-
-
 
 )
 

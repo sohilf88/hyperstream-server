@@ -19,6 +19,7 @@ const xssProtect = require("xss-clean")
 const adminRouter = require("./routes/admin/admin.route")
 const userRouter = require("./routes/users.route");
 const allowedOrigins = require("./config/allowedOrigins");
+const { socketPreShareAuth } = require("./middlewares/socketPreShareAuth");
 
 
  
@@ -31,6 +32,7 @@ const server = http.createServer(app)
 const io = new Server(server, {
 cors: {
   origin: allowedOrigins,
+  
   credentials: true
 }
 });
@@ -43,11 +45,13 @@ app.use((req, res, next) => {
   next()
 })
 // socket config
+io.use(socketPreShareAuth);
 io.on("connection", (socket) => {
-  console.log(socket.id)
-  socket.emit("web", "welcome to hyperstream socket connection "+socket.id + " ")
-})
-
+  socket.on("joinRoom", (userId) => {
+    socket.join(userId);
+    console.log(`✅ User joined room: ${userId}`);
+  });
+});
 
 
 app.use(express.json());
@@ -87,7 +91,7 @@ app.use("/api/v1/auth", require("./routes/auth.route")); ///api/v1/auth/profile,
 // !routes to handle all camera/data add/remove/update requests
 app.use("/api/v1/camera", require("./routes/camera.route"));
 
-app.use("/api/v1/webhook",require("./routes/webhook"))
+app.use("/api/v1/websocket",require("./routes/webhook"))
 
 app.all("*", (req, res, next) => {
 

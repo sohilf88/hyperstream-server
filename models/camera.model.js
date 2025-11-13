@@ -1,3 +1,4 @@
+const { string } = require("joi");
 const mongoose = require("mongoose");
 
 const cameraSchema = new mongoose.Schema(
@@ -10,9 +11,7 @@ const cameraSchema = new mongoose.Schema(
       type: String,
       required: true,
       lowercase: true,
-
     },
-
     district: {
       type: String,
       lowercase: true,
@@ -27,7 +26,6 @@ const cameraSchema = new mongoose.Schema(
       type: String,
       lowercase: true,
       required: true,
-
     },
     area: {
       type: String,
@@ -36,20 +34,35 @@ const cameraSchema = new mongoose.Schema(
     },
     isActive: {
       type: Boolean,
-      default: true
+      default: true,
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "user"
-
+      ref: "user",
+    },
+    streamId:{
+      type:String,
+      required:true,
+      unique: true,
+      lowercase: true,
+    },
+    streamStart:{
+      type:Date,
+      
+    },
+    streamEnd:{
+      type:Date,
+      
+    },
+    isLive: {
+      type: Boolean,
+      default: false,
     },
 
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
-// below create collection in database with name "cameras"
-const cameraSchemaModel = mongoose.model("camera", cameraSchema);
-module.exports = cameraSchemaModel;
+
+const Camera = mongoose.model("camera", cameraSchema);
+module.exports = Camera;

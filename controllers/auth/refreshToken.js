@@ -13,13 +13,15 @@ const refresh = async (req, res, next) => {
         // return next(new ApplicationError("Unauthorized,No Refresh cookies", 400))
 
         return res.clearCookie("jwtRe", {
-            httpOnly: true, //accessible only via browser
-            sameSite: "none",// cross-site cookie
-            secure: true,//https only
+            httpOnly: true,
+            domain: process.env.ENV === "prod" ? ".hyperstream.in" : "localhost",
+            sameSite: process.env.ENV === "prod" ? "None" : "Lax",
+            secure: process.env.ENV === "prod" ? true : false,
         }).clearCookie("jwtAccess", {
-            httpOnly: true, //accessible only via browser
-            sameSite: "none",// cross-site cookie
-            secure: true,//https onl
+            httpOnly: true,
+            domain: process.env.ENV === "prod" ? ".hyperstream.in" : "localhost",
+            sameSite: process.env.ENV === "prod" ? "None" : "Lax",
+            secure: process.env.ENV === "prod" ? true : false,
         }).sendStatus(200)
 
     }
@@ -34,11 +36,14 @@ const refresh = async (req, res, next) => {
             if (error) {
                 //   console.log(error)
                 if (error.message === "jwt expired") {
+                    // if refresh token expired, we will set time value=0
                     return res.cookie("jwtRe", {
-                        httpOnly: true, //accessible only via browser
-                        sameSite: "none",// cross-site cookie
-                        secure: true,//https only
+                        httpOnly: true,
+                        domain: process.env.ENV === "prod" ? ".hyperstream.in" : "localhost",
+                        sameSite: process.env.ENV === "prod" ? "None" : "Lax",
+                        secure: process.env.ENV === "prod" ? true : false,
                         maxAge: 0,
+                        
                          // domain need to add during prod
                         // domain:"hypsertream.in",
                     }).status(209)
@@ -59,10 +64,11 @@ const refresh = async (req, res, next) => {
             // console.log(accesstoken)
 
             return res.cookie('jwtAccess', accesstoken, {
-                httpOnly: true, //accessible only via browser
-                sameSite: "none",// cross-site cookie
-                secure: true,//https only,need to change to true later
                 maxAge: 15 * 60 * 1000, // 15 minutes
+                httpOnly: true,
+                domain: process.env.ENV === "prod" ? ".hyperstream.in" : "localhost",
+                sameSite: process.env.ENV === "prod" ? "None" : "Lax",
+                secure: process.env.ENV === "prod" ? true : false,
                 // domain:"hyperstream.in"
                 
             }).status(201).json({ success: true, message: "Access Token Updated" })

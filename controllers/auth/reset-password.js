@@ -66,11 +66,13 @@ const resetPassword = asyncHandler(async (req, res, next) => {
     })
 
     return res.cookie('jwtAccess', accesstoken, {
-        httpOnly: true, //accessible only via browser
-        sameSite: "none",// cross-site cookie
-        secure: true,//https only,need to change to true later
+        
         maxAge: 15 * 60 * 1000, // 15 minutes,
-        domain:"hypsertream.in",
+        // domain:"hypsertream.in",
+        httpOnly: true,
+        domain: process.env.ENV === "prod" ? ".hyperstream.in" : "localhost",
+        sameSite: process.env.ENV === "prod" ? "None" : "Lax",
+        secure: process.env.ENV === "prod" ? true : false,
     }).status(201).json({ success: true, message: "Password has been updated" })
 
 })

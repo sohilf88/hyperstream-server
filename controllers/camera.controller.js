@@ -102,17 +102,17 @@ const getFilteredCameraController = asyncHandler(async (req, res, next) => {
 })
 // create Camera function
 const createCameraController = asyncHandler(async (req, res, next) => {
-  const { name, district, taluka, city, area, url, isActive } = req.body
+  const { name, district, taluka, city, area, url, isActive,streamId } = req.body
   const userId = req.user._id
   // console.log(userId)
 
 
 
-  if (!name || !district || !taluka || !city || !area || !url) {
+  if (!name || !district || !taluka || !city || !area || !url || !streamId) {
     return next(new ApplicationError("All fields are required", 400))
   }
 
-  const camera = await cameraSchemaModel.create({ name, district, taluka, city, area, url, isActive, userId });
+  const camera = await cameraSchemaModel.create({ name, district, taluka, city, area, url, isActive, userId,streamId });
 
   return res.status(200).json({
     success: true,

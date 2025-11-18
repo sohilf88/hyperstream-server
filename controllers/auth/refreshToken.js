@@ -165,7 +165,7 @@ const refresh = asyncHandler(async (req, res, next) => {
             // ------------------------------
             res.cookie("jwtAccess", accessToken, {
                 ...cookieOptions,
-                maxAge: ACCESS_COOKIE_EXP * 1000, // convert seconds → ms
+                maxAge: ACCESS_COOKIE_EXP // in ms seconds
             });
 
             return res.status(200).json({

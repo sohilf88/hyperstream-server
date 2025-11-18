@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 
 const crypto = require("crypto");
 const { ApplicationError } = require("../../middlewares/errorHandler");
+const { ACCESS_TOKEN_EXP } = require("./envVariables");
 
 
 
@@ -62,7 +63,7 @@ const resetPassword = asyncHandler(async (req, res, next) => {
     await user.save()
     // login user by sending jwt
     const accesstoken = jwt.sign({ username: user.username, email: user.email, roles: user.roles }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
-        expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
+        expiresIn: ACCESS_TOKEN_EXP
     })
 
     return res.cookie('jwtAccess', accesstoken, {

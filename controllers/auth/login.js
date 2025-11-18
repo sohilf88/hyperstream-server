@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt")
 const { ApplicationError } = require("../../middlewares/errorHandler");
 
 const userModel = require("../../models/user.model");
+const { REFRESH_COOKIE_EXP, ACCESS_COOKIE_EXP, ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP } = require("./envVariables");
 
 // Login Controller
 // /api/v1/auth/login
@@ -39,11 +40,11 @@ const loginController = asyncHandler(async (req, res, next) => {
     }
 
     const accesstoken = jwt.sign({ username: checkUserAccountInDB.username, email: checkUserAccountInDB.email, roles: checkUserAccountInDB.roles, _id: checkUserAccountInDB._id }, process.env.AUTH_ACCESS_TOKEN_SECRET, {
-        expiresIn: process.env.AUTH_ACCESS_TOKEN_EXPIRY
+        expiresIn: ACCESS_TOKEN_EXP
     })
 
     const refreshToken = jwt.sign({ _id: checkUserAccountInDB._id }, process.env.AUTH_REFRESH_TOKEN_SECRET, {
-        expiresIn: process.env.AUTH_REFRESH_TOKEN_EXPIRY
+        expiresIn: REFRESH_TOKEN_EXP
     })
     // create cookie with refresh token
     // req.currentUser=checkUserAccountInDB
@@ -78,20 +79,21 @@ const loginController = asyncHandler(async (req, res, next) => {
 //             data: { name: checkUserAccountInDB.username, roles: checkUserAccountInDB.roles,id:checkUserAccountInDB._id }
 //         })
 // }
+// ACCESS_TOKEN_EXP,REFRESH_TOKEN_EXP,ACCESS_COOKIE_EXP,REFRESH_COOKIE_EXP,DOMAIN_NAME
 return res
   .cookie("jwtRe", refreshToken, {
     httpOnly: true,
     domain: process.env.ENV === "prod" ? ".hyperstream.in" : "localhost",
     sameSite: process.env.ENV === "prod" ? "None" : "Lax",
     secure: process.env.ENV === "prod" ? true : false,
-    maxAge: 60 * 60 * 24 * 1000, // 1 day
+    maxAge: REFRESH_COOKIE_EXP // 1 day
   })
   .cookie("jwtAccess", accesstoken, {
     httpOnly: true,
     domain: process.env.ENV === "prod" ? ".hyperstream.in" : "localhost",
     sameSite: process.env.ENV === "prod" ? "None" : "Lax",
     secure: process.env.ENV === "prod" ? true : false,
-    maxAge: 15 * 60 * 1000, // 15 minutes
+    maxAge: ACCESS_COOKIE_EXP, // 15 minutes
   })
   .json({
     success: true,

@@ -47,7 +47,10 @@ app.use((req, res, next) => {
 // socket config
 io.use(socketPreShareAuth);
 io.on("connection", (socket) => {
+  // transports: ["websocket"]
+  // autoConnect: true,
   socket.on("joinRoom", (userId) => {
+    
     socket.join(userId);
     console.log(`✅ User joined room: ${userId}`);
   });

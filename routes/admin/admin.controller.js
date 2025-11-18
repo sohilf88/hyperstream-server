@@ -43,9 +43,14 @@ const getSpecificUsersCamera = asyncHandler(async (req, res, next) => {
 
 async function updateUserControllerByAdmin(req, res, next) {
     const { id } = req.params;
-    //   check id for valid mongoose object type
+    const {userId}=req.body
+    // const rootUsers = await userModel.count({roles:"root",isActive:true})
     // console.log(req.params)
+    // console.log(rootUsers)
     try {
+        if(id==userId){
+            return next(new ApplicationError("You are not allowed to disable your own account. Please request another super administrator to perform this action.", 400))
+        }
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(404).json({ error: "invalid user id" });
         }
@@ -133,8 +138,8 @@ async function getAllUsersAdminController(req, res, next) {
             message: allUsers,
             totalUsers: totalUsers
         });
-        return res.status(200).send(
-             allUsers)
+        // return res.status(200).send(
+        //      allUsers)
             
         
     } catch (error) {

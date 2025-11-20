@@ -71,7 +71,7 @@ const resetPassword = asyncHandler(async (req, res, next) => {
         maxAge: 15 * 60 * 1000, // 15 minutes,
         // domain:"hypsertream.in",
         httpOnly: true,
-        domain: process.env.ENV === "prod" ? ".hyperstream.in" : "localhost",
+        domain: process.env.ENV === "prod" ? DOMAIN : "localhost",
         sameSite: process.env.ENV === "prod" ? "None" : "Lax",
         secure: process.env.ENV === "prod" ? true : false,
     }).status(201).json({ success: true, message: "Password has been updated" })

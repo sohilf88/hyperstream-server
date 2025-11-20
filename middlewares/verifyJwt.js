@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken")
 const userModel = require("../models/user.model")
 const { ApplicationError } = require("./errorHandler")
+const { DOMAIN } = require("../controllers/auth/envVariables")
 
 const verifyJWT = async (req, res, next) => {
     // console.log(req.cookies)
@@ -35,7 +36,7 @@ const verifyJWT = async (req, res, next) => {
             if (checkUser.checkPasswordAfterTokenAssigned(decoded.iat)) {
                 res.clearCookie("jwtRe", {
                     httpOnly: true,
-                    domain: process.env.ENV === "prod" ? ".hyperstream.in" : "localhost",
+                    domain: process.env.ENV === "prod" ? DOMAIN : "localhost",
                     sameSite: process.env.ENV === "prod" ? "None" : "Lax",
                     secure: process.env.ENV === "prod" ? true : false,
                 })

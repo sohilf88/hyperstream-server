@@ -88,6 +88,7 @@ const {
     REFRESH_TOKEN_EXP,
     ACCESS_COOKIE_EXP,
     REFRESH_COOKIE_EXP,
+    DOMAIN,
 } = require("./envVariables");
 
 const refresh = asyncHandler(async (req, res, next) => {
@@ -99,7 +100,7 @@ const refresh = asyncHandler(async (req, res, next) => {
         httpOnly: true,
         secure: isProd,
         sameSite: isProd ? "None" : "Lax",
-        domain: isProd ? ".hyperstream.in" : "localhost",
+        domain: isProd ? DOMAIN : "localhost",
     };
 
     // ------------------------------

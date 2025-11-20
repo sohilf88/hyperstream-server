@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt")
 const { ApplicationError } = require("../../middlewares/errorHandler");
 
 const userModel = require("../../models/user.model");
-const { REFRESH_COOKIE_EXP, ACCESS_COOKIE_EXP, ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP } = require("./envVariables");
+const { REFRESH_COOKIE_EXP, ACCESS_COOKIE_EXP, ACCESS_TOKEN_EXP, REFRESH_TOKEN_EXP, DOMAIN } = require("./envVariables");
 
 // Login Controller
 // /api/v1/auth/login
@@ -83,14 +83,14 @@ const loginController = asyncHandler(async (req, res, next) => {
 return res
   .cookie("jwtRe", refreshToken, {
     httpOnly: true,
-    domain: process.env.ENV === "prod" ? ".hyperstream.in" : "localhost",
+    domain: process.env.ENV === "prod" ? DOMAIN : "localhost",
     sameSite: process.env.ENV === "prod" ? "None" : "Lax",
     secure: process.env.ENV === "prod" ? true : false,
     maxAge: REFRESH_COOKIE_EXP // 1 day
   })
   .cookie("jwtAccess", accesstoken, {
     httpOnly: true,
-    domain: process.env.ENV === "prod" ? ".hyperstream.in" : "localhost",
+    domain: process.env.ENV === "prod" ?DOMAIN : "localhost",
     sameSite: process.env.ENV === "prod" ? "None" : "Lax",
     secure: process.env.ENV === "prod" ? true : false,
     maxAge: ACCESS_COOKIE_EXP, // 15 minutes

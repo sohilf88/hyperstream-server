@@ -10,7 +10,7 @@ const { REFRESH_COOKIE_EXP, ACCESS_COOKIE_EXP, ACCESS_TOKEN_EXP, REFRESH_TOKEN_E
 // /api/v1/auth/login
 const loginController = asyncHandler(async (req, res, next) => {
     const { email, password } = req.body;
-    console.log(process.env.ENV)
+    // console.log(process.env.ENV)
     // console.log(req.body)
     // check all fields
     if (!email || !password) {
@@ -35,7 +35,7 @@ const loginController = asyncHandler(async (req, res, next) => {
 
     // const isMatch = await checkUserAccountInDB.comparePassword(password, checkUserAccountInDB.password)
     if (!checkPassword) {
-        return next(new ApplicationError("Email or Password was Wrong", 401))
+        return next(new ApplicationError("Email or Password was Wrong", 400))
 
     }
 
